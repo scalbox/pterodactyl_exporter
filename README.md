@@ -92,7 +92,7 @@ WantedBy=multi-user.target
 
  ```
 
- - To get the Grafana dashboard, import id `16575`. Alternatively download the JSON file from the releases.
+ - To use the dashboards bundled with this fork, see [Grafana dashboards](#grafana-dashboards). The original upstream Grafana dashboard is also available under ID `16575`.
  
  #### Servers can be selected by changing API permissions or with the UUID filters documented below.
 
@@ -156,6 +156,56 @@ labels of existing metrics (including `server_name` and `id`) do not change.
 These changes are built into this fork. Do not run the legacy third-party
 patching script against this version; it was only intended for the unmodified
 upstream package.
+
+## Grafana dashboards
+
+This fork includes two language versions of the **Pterodacty l Server & Network**
+Grafana dashboard in the [`dashboards/`](dashboards/) directory:
+
+- [English dashboard](dashboards/Pterodactyl-Server-Network-en.json)
+- [Italian dashboard](dashboards/Pterodactyl-Server-Network-it.json)
+
+### Dashboard screenshots
+
+The screenshots below show the dashboard with anonymized server names and UUIDs.
+Click an image to view it at full resolution.
+
+**CPU, Uptime, Memory, and Disk**
+
+[![CPU, Uptime, Memory, and Disk dashboard panels](dashboards/screenshots/01-cpu-uptime-memory-disk.png)](dashboards/screenshots/01-cpu-uptime-memory-disk.png)
+
+**Network RX/TX — Current and Cumulative**
+
+[![Current and cumulative network RX and TX dashboard panels](dashboards/screenshots/02-network-rx-tx.png)](dashboards/screenshots/02-network-rx-tx.png)
+
+**Total Network Traffic and Backups**
+
+[![Total network traffic and backup dashboard panels](dashboards/screenshots/03-network-traffic-backups.png)](dashboards/screenshots/03-network-traffic-backups.png)
+
+Both exports contain the same panels, Prometheus queries, server selector, and
+layout. Only the user-facing labels, descriptions, legends, and backup-table
+messages differ by language.
+
+The dashboards include:
+
+- CPU and memory usage, disk usage, current uptime, and historical uptime.
+- Per-server network RX and TX charts for both cumulative traffic and current
+  throughput in Mbps, including combined RX/TX views and overall totals.
+- A per-server backup table with the latest backup, stored backup count, backup
+  limit, usage indicator, panel name, and complete server UUID.
+
+To import either version, open **Grafana > Dashboards > New > Import**, upload
+the desired JSON file, select your **Prometheus** data source, and import it.
+The exporter must be reachable by Prometheus and provide the additional backup
+and identity metrics described above for those columns to contain data.
+
+The **Server** selector filters the displayed metrics in Grafana. To prevent
+servers from being queried and exported at all, configure `include_servers`
+and/or `exclude_servers` in the exporter instead.
+
+Both JSON files use the same dashboard title and are intended as alternative
+language versions. To keep both in one Grafana installation, import them into
+different folders or choose distinct dashboard names during import.
  
 ## Run with Docker
 
