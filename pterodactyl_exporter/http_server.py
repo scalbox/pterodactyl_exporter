@@ -5,7 +5,7 @@ from .dto.metrics import Metrics
 
 class HTTPServer:
     def __init__(self, config: Config):
-        start_http_server(config.port)
+        start_http_server(config.port, addr=config.listen_address)
 
         label_names = ("server_name", "id",)
         self.identity_info = Gauge(

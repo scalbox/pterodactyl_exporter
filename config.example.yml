@@ -1,6 +1,7 @@
 host:
 host_port: # This is the port of the panel (optional)
 port: 9531 # Standard exporter listening port
+listen_address: 0.0.0.0 # Bind address; use 127.0.0.1 for local Prometheus (not in Docker)
 api_key: 
 https: true
 ignore_ssl: false

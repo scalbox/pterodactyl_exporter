@@ -7,6 +7,17 @@ from pterodactyl_exporter.enum.server_list_type import ServerListType
 
 
 class TestHTTPServer(unittest.TestCase):
+    @patch('pterodactyl_exporter.http_server.Gauge')
+    @patch('pterodactyl_exporter.http_server.start_http_server')
+    def test_listen_address(self, mock_start_server, _mock_gauge):
+        config = Config(
+            host="example.com", port=9531, api_key="test", https=True,
+            ignore_ssl=False, server_list_type=ServerListType.OWNER,
+            listen_address="127.0.0.1"
+        )
+        HTTPServer(config)
+        mock_start_server.assert_called_once_with(9531, addr="127.0.0.1")
+
     @patch('pterodactyl_exporter.http_server.start_http_server')
     def test_serve_metrics(self, _mock_start_server):
         config = Config(
@@ -19,6 +30,7 @@ class TestHTTPServer(unittest.TestCase):
         )
 
         http_server = HTTPServer(config)
+        _mock_start_server.assert_called_once_with(9531, addr="0.0.0.0")
         http_server.identity_info = MagicMock()
         http_server.metric_gauges = {
             "memory": MagicMock(),

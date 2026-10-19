@@ -1,5 +1,6 @@
 from ..enum.server_list_type import ServerListType
 from dataclasses import dataclass, field
+from ipaddress import ip_address
 from typing import List
 from .validation import Validation
 
@@ -12,6 +13,7 @@ class Config(Validation):
     ignore_ssl: bool
     server_list_type: ServerListType
     host_port: int = field(default=None)  # Make host_port optional
+    listen_address: str = field(default="0.0.0.0")
     query_interval: int = field(default=10)
     include_servers: List[str] = field(default_factory=list)
     exclude_servers: List[str] = field(default_factory=list)
@@ -48,6 +50,17 @@ class Config(Validation):
             return None
         if not isinstance(value, int) or not (1 <= value <= 65535):
             raise ValueError("host_port: Please use a port between 1 and 65535")
+        return value
+
+    @staticmethod
+    def validate_listen_address(value, **_) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("listen_address: Please use a valid IPv4 or IPv6 address")
+        value = value.strip()
+        try:
+            ip_address(value)
+        except ValueError as exc:
+            raise ValueError("listen_address: Please use a valid IPv4 or IPv6 address") from exc
         return value
 
     @staticmethod

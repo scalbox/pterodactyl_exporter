@@ -43,12 +43,12 @@ other monitoring software to be installed on Pterodactyl nodes.
 
  - To install with pipx:
 ```
-pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.10"
+pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.11"
 ```
 
  - To install with pip _(not recommended, could break system dependencies)_:
 ```
-pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.10"
+pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.11"
 ```
  - Create directory `pterodactyl_exporter`.
  
@@ -57,7 +57,8 @@ pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.10"
  ```yml
 host: panel.example.com
 host_port: # This is the port of the panel (optional)
-port: 9531 #Standard port for the exporter
+port: 9531 # Standard exporter listening port
+listen_address: 127.0.0.1 # Bind locally when Prometheus runs on this host
 api_key: APIKEY_APIKEYAPIKEYAPIKEY
 https: true
 ignore_ssl: false
@@ -66,6 +67,8 @@ query_interval: 10 # Interval in seconds between each query to the Pterodactyl p
 include_servers: [] # Optional full-UUID allowlist (empty = all accessible servers)
 exclude_servers: [] # Optional full-UUID blocklist
  ```
+
+ The `listen_address` setting controls which interface serves `/metrics` (`127.0.0.1` for local-only access, `0.0.0.0` for all interfaces). If omitted, it defaults to `0.0.0.0`. It is separate from `host` and `host_port`, which refer to the Pterodactyl panel. Restart the exporter after changing the setting.
 
  - Create systemd service `/etc/systemd/system/pterodactyl_exporter.service`:
 ```
@@ -213,7 +216,7 @@ different folders or choose distinct dashboard names during import.
 
 Starting with **1.0.9**, release images are published from this fork to GitHub
 Container Registry (GHCR). The Compose file uses the pinned image
-`ghcr.io/scalbox/pterodactyl_exporter:1.0.9` and does not use the upstream
+`ghcr.io/scalbox/pterodactyl_exporter:1.0.11` and does not use the upstream
 `loens2/pterodactyl_exporter` image. The Docker image is published by GitHub Actions after the version tag is pushed
 and its multi-platform build completes successfully.
 
@@ -231,24 +234,28 @@ docker compose -f docker/docker-compose.yml up -d
 
 The Compose file mounts `config.yml` read-only and restarts the exporter unless
 it is explicitly stopped. By default, it maps port 9531 on all host interfaces.
-If Prometheus runs on the same machine, you can restrict access by changing the
-port mapping to `127.0.0.1:9531:9531`.
+**In Docker, keep `listen_address: 0.0.0.0` in `config.yml`**, because the
+exporter must accept connections from outside the container's own loopback.
+If Prometheus runs on the Docker host, restrict access using the Compose
+port mapping `127.0.0.1:9531:9531` instead. This limits the host's published
+port; `listen_address: 127.0.0.1` inside the container would prevent the
+published Docker port from reaching the exporter.
 
 ### Automated Docker and Python releases
 
 The [release workflow](.github/workflows/publish-docker.yml) runs whenever a
-stable version Git tag such as `1.0.10` is pushed. It:
+stable version Git tag such as `1.0.11` is pushed. It:
 
 1. Runs the Python regression tests, builds the wheel (`.whl`) and Python source
    distribution (`.tar.gz`) from the exact tagged commit, and validates both.
 2. Builds Docker images for Linux `amd64` and `arm64` and publishes the versioned
-   image (`:1.0.10`) and `:latest` to GHCR.
+   image (`:1.0.11`) and `:latest` to GHCR.
 3. **Only after both jobs succeed**, creates a GitHub Release for the tag, with
    the Python distributions attached as downloadable release assets.
 4. Uses the **annotated Git tag message** as the GitHub Release description.
-5. Updates the version in both `pipx` and `pip` installation commands in the
-   `README.md` on `main` after successful release publication. It never replaces
-   a newer installed version with an older one.
+5. Updates the version in both `pipx` and `pip` installation commands and the
+   Docker Compose image tag on `main` after successful release publication.
+   It never replaces a newer installed version with an older one.
 
 GitHub automatically adds two source snapshots (ZIP and TAR.GZ) to every release.
 The workflow adds two different Python installation packages:
@@ -264,8 +271,8 @@ To release a new version, first push the desired commits to `main`, then create
 an annotated tag pointing to that commit. For example, in PowerShell:
 
 ```powershell
-git tag -a 1.0.10
-git push origin refs/tags/1.0.10
+git tag -a 1.0.11
+git push origin refs/tags/1.0.11
 ```
 
 The `git tag -a` command opens your configured editor; write the complete

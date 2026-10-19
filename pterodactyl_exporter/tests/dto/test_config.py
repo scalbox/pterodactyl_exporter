@@ -11,6 +11,20 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.include_servers, [])
         self.assertEqual(config.exclude_servers, [])
 
+    def test_listen_address_default_and_localhost(self):
+        config = Config(
+            host="example.com", port=9531, api_key="test", https=True,
+            ignore_ssl=False, server_list_type="owner"
+        )
+        self.assertEqual(config.listen_address, "0.0.0.0")
+        self.assertEqual(Config.validate_listen_address(" 127.0.0.1 "), "127.0.0.1")
+        self.assertEqual(Config.validate_listen_address("::1"), "::1")
+
+    def test_listen_address_invalid(self):
+        for address in (None, "", "   ", "example.com", "999.999.999.999", 123):
+            with self.subTest(address=address), self.assertRaises(ValueError):
+                Config.validate_listen_address(address)
+
     def test_server_uuid_filter_normalization(self):
         config = Config(
             host="example.com", port=9531, api_key="test", https=True,
