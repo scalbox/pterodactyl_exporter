@@ -101,7 +101,7 @@ jobs:
           test -f "dist/pterodactyl_exporter-${RELEASE_VERSION}.tar.gz"
 
       - name: Save Python distributions for the release job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-distributions
           path: dist/*
@@ -118,7 +118,7 @@ jobs:
 
     steps:
       - name: Download verified Python distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: python-distributions
           path: dist
@@ -138,3 +138,62 @@ jobs:
             --title "Pterodactyl Exporter $RELEASE_TAG" \
             --notes-from-tag \
             --latest
+
+  update-readme:
+    name: Update README install version
+    needs: release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: readme-install-version
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout current main branch
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Update versioned pip and pipx commands
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(gh api "repos/${GH_REPO}/releases/latest" --jq .tag_name)"
+          if [[ "$latest_tag" != "$RELEASE_TAG" ]]; then
+            echo "::notice::Skipping README update: latest release is $latest_tag."
+            exit 0
+          fi
+
+          mapfile -t installed_tags < <(
+            grep -oE 'git\+https://github\.com/scalbox/pterodactyl_exporter\.git@[0-9]+\.[0-9]+\.[0-9]+' README.md | sed -E 's/^.*@//'
+          )
+          if [[ "${#installed_tags[@]}" -ne 2 || "${installed_tags[0]}" != "${installed_tags[1]}" ]]; then
+            echo "::error::Expected exactly two matching pinned Git installation versions in README.md."
+            exit 1
+          fi
+
+          current_tag="${installed_tags[0]}"
+          highest="$(printf "%s\n%s\n" "$current_tag" "$RELEASE_TAG" | sort -V | tail -n 1)"
+          if [[ "$highest" != "$RELEASE_TAG" ]]; then
+            echo "::notice::Keeping newer README version $current_tag (release $RELEASE_TAG is older)."
+            exit 0
+          fi
+
+          sed -E -i "s|git\+https://github\.com/scalbox/pterodactyl_exporter\.git@[0-9]+\.[0-9]+\.[0-9]+|git+https://github.com/scalbox/pterodactyl_exporter.git@${RELEASE_TAG}|g" README.md
+
+          if git diff --quiet -- README.md; then
+            echo "::notice::README.md already points to $RELEASE_TAG."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs(readme): update install version to $RELEASE_TAG [skip ci]"
+          git push origin HEAD:main

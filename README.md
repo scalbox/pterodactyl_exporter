@@ -19,6 +19,8 @@ other monitoring software to be installed on Pterodactyl nodes.
 
 # How to install
 
+**Latest stable release:** [View on GitHub](https://github.com/scalbox/pterodactyl_exporter/releases/latest).
+
 ## What you need:
 
  * Linux server (should run on Windows as well, but is only tested in a linux environment)
@@ -244,6 +246,9 @@ stable version Git tag such as `1.0.10` is pushed. It:
 3. **Only after both jobs succeed**, creates a GitHub Release for the tag, with
    the Python distributions attached as downloadable release assets.
 4. Uses the **annotated Git tag message** as the GitHub Release description.
+5. Updates the version in both `pipx` and `pip` installation commands in the
+   `README.md` on `main` after successful release publication. It never replaces
+   a newer installed version with an older one.
 
 GitHub automatically adds two source snapshots (ZIP and TAR.GZ) to every release.
 The workflow adds two different Python installation packages:
@@ -272,7 +277,8 @@ the updated workflow on `main` **before** creating the next version tag.
 No Docker Hub credentials or personal access tokens are needed: the workflow
 uses GitHub's `GITHUB_TOKEN` with `packages: write` for GHCR and
 `contents: write` only for the release-publishing job. If a GitHub Release
-already exists for the same tag, a rerun leaves it unchanged.
+already exists for the same tag, a rerun leaves it unchanged. The README update
+is committed by GitHub Actions only when the installed version actually changes.
 
 New GHCR packages may initially be private. After the first publish, open the
 package settings on GitHub and change its visibility to **Public** if users
