@@ -1,8 +1,10 @@
 services:
   pterodactyl-exporter:
-    image: loens2/pterodactyl_exporter:latest
+    # Published automatically by GitHub Actions when the 1.0.9 tag is pushed.
+    image: ghcr.io/scalbox/pterodactyl_exporter:1.0.9
     container_name: pterodactyl-exporter
+    restart: unless-stopped
     ports:
       - "9531:9531"
     volumes:
-      - ../config.yml:/opt/pterodactyl_exporter/config/config.yml
+      - ../config.yml:/opt/pterodactyl_exporter/config/config.yml:ro

@@ -207,24 +207,54 @@ Both JSON files use the same dashboard title and are intended as alternative
 language versions. To keep both in one Grafana installation, import them into
 different folders or choose distinct dashboard names during import.
  
-## Run with Docker
+## Run with Docker (starting with 1.0.9)
 
- - Create a folder named `pterodactyl_exporter`
- 
- - Download the config file from GitHub:
- ```
- curl -fsSL -o config.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/config.example.yml
- ```
- - Create a folder named `docker`
- 
- - Download the `docker-compose.yml` into that folder:
- ```
- curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/docker/docker-compose.yml
- ```
- - Run the container:
- ```
- docker-compose up -d
- ```
+Starting with **1.0.9**, release images are published from this fork to GitHub
+Container Registry (GHCR). The Compose file uses the pinned image
+`ghcr.io/scalbox/pterodactyl_exporter:1.0.9` and does not use the upstream
+`loens2/pterodactyl_exporter` image. **The 1.0.9 image will be available only
+after the `1.0.9` Git tag is published and the GitHub Actions job succeeds.**
+Publishing a Git tag alone does not publish a Docker image.
+
+Create the files and edit `config.yml` with your Pterodactyl Client API details:
+
+```bash
+mkdir -p pterodactyl_exporter/docker
+cd pterodactyl_exporter
+curl -fsSL -o config.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/config.example.yml
+curl -fsSL -o docker/docker-compose.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/docker/docker-compose.yml
+# Edit config.yml before starting the exporter.
+docker compose -f docker/docker-compose.yml pull
+docker compose -f docker/docker-compose.yml up -d
+```
+
+The Compose file mounts `config.yml` read-only and restarts the exporter unless
+it is explicitly stopped. By default, it maps port 9531 on all host interfaces.
+If Prometheus runs on the same machine, you can restrict access by changing the
+port mapping to `127.0.0.1:9531:9531`.
+
+### Automatic GHCR releases
+
+The [Docker publishing workflow](.github/workflows/publish-docker.yml) runs
+when a new semantic version Git tag such as `1.0.9` is pushed. It:
+
+1. Checks out the exact tagged source, including this fork's exporter changes.
+2. Builds a Python wheel from that source and embeds the Git tag's package version.
+3. Builds Linux `amd64` and `arm64` Docker images.
+4. Publishes the versioned image (`:1.0.9`) and `:latest` to GHCR.
+
+Before tagging a release, use **Actions > Publish Docker image > Run workflow**
+on the default branch to test the Docker build without publishing an image.
+
+No Docker Hub credentials or personal access tokens are needed for the workflow;
+it authenticates with GitHub's built-in `GITHUB_TOKEN` and `packages: write`
+permission. **Git tags are created by Git, not by GHCR.** The release tag
+points to the commit that contains the Dockerfile, Compose file and workflow;
+its annotated message can contain the release notes.
+
+New GHCR packages may initially be private. After the first publish, open the
+package settings on GitHub and change its visibility to **Public** if users
+should be able to run `docker pull` without authentication.
  
 ## Run manually
 
