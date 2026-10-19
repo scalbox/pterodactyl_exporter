@@ -43,12 +43,12 @@ other monitoring software to be installed on Pterodactyl nodes.
 
  - To install with pipx:
 ```
-pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.9"
+pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.10"
 ```
 
  - To install with pip _(not recommended, could break system dependencies)_:
 ```
-pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.9"
+pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.10"
 ```
  - Create directory `pterodactyl_exporter`.
  
