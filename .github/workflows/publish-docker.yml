@@ -167,7 +167,7 @@ jobs:
             --latest
 
   update-readme:
-    name: Update README install version
+    name: Synchronize installation examples
     needs: release
     if: github.event_name == 'push' || inputs.release_tag != ''
     runs-on: ubuntu-latest
@@ -183,7 +183,7 @@ jobs:
         with:
           ref: main
 
-      - name: Update versioned pip and pipx commands
+      - name: Update pinned pip, pipx and Docker Compose versions
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -193,7 +193,7 @@ jobs:
 
           latest_tag="$(gh api "repos/${GH_REPO}/releases/latest" --jq .tag_name)"
           if [[ "$latest_tag" != "$RELEASE_TAG" ]]; then
-            echo "::notice::Skipping README update: latest release is $latest_tag."
+            echo "::notice::Skipping install examples update: latest release is $latest_tag."
             exit 0
           fi
 
@@ -206,21 +206,30 @@ jobs:
           fi
 
           current_tag="${installed_tags[0]}"
-          highest="$(printf "%s\n%s\n" "$current_tag" "$RELEASE_TAG" | sort -V | tail -n 1)"
+          compose_file="docker/docker-compose.yml"
+          compose_tag="$(sed -nE 's|^[[:space:]]*image:[[:space:]]*ghcr\.io/scalbox/pterodactyl_exporter:([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]*$|\1|p' "$compose_file")"
+          if [[ ! "$compose_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Expected exactly one stable versioned GHCR image in $compose_file."
+            exit 1
+          fi
+
+          highest="$(printf "%s\n%s\n%s\n" "$current_tag" "$compose_tag" "$RELEASE_TAG" | sort -V | tail -n 1)"
           if [[ "$highest" != "$RELEASE_TAG" ]]; then
-            echo "::notice::Keeping newer README version $current_tag (release $RELEASE_TAG is older)."
+            echo "::notice::Keeping newer install example (README $current_tag, Compose $compose_tag; release $RELEASE_TAG)."
             exit 0
           fi
 
           sed -E -i "s|git\+https://github\.com/scalbox/pterodactyl_exporter\.git@[0-9]+\.[0-9]+\.[0-9]+|git+https://github.com/scalbox/pterodactyl_exporter.git@${RELEASE_TAG}|g" README.md
+          sed -E -i "s|^([[:space:]]*image:[[:space:]]*ghcr\.io/scalbox/pterodactyl_exporter:)[0-9]+\.[0-9]+\.[0-9]+([[:space:]]*)$|\1${RELEASE_TAG}\2|" "$compose_file"
+          sed -E -i 's|^([[:space:]]*)# Published automatically by GitHub Actions when the [0-9]+\.[0-9]+\.[0-9]+ tag is pushed\.$|\1# Versioned image published automatically by GitHub Actions.|' "$compose_file"
 
-          if git diff --quiet -- README.md; then
-            echo "::notice::README.md already points to $RELEASE_TAG."
+          if git diff --quiet -- README.md "$compose_file"; then
+            echo "::notice::README.md and Docker Compose already point to $RELEASE_TAG."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "docs(readme): update install version to $RELEASE_TAG [skip ci]"
+          git add README.md "$compose_file"
+          git commit -m "docs(install): synchronize versioned examples to $RELEASE_TAG [skip ci]"
           git push origin HEAD:main
