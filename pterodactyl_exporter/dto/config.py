@@ -1,5 +1,6 @@
 from ..enum.server_list_type import ServerListType
 from dataclasses import dataclass, field
+from typing import List
 from .validation import Validation
 
 @dataclass
@@ -12,6 +13,26 @@ class Config(Validation):
     server_list_type: ServerListType
     host_port: int = field(default=None)  # Make host_port optional
     query_interval: int = field(default=10)
+    include_servers: List[str] = field(default_factory=list)
+    exclude_servers: List[str] = field(default_factory=list)
+
+    @staticmethod
+    def _validate_uuid_list(value, field_name):
+        if value is None:
+            return []
+        if not isinstance(value, list) or any(
+            not isinstance(uuid, str) or not uuid.strip() for uuid in value
+        ):
+            raise ValueError(f"{field_name}: Expected a list of non-empty server UUIDs")
+        return [uuid.strip().lower() for uuid in value]
+
+    @staticmethod
+    def validate_include_servers(value, **_):
+        return Config._validate_uuid_list(value, "include_servers")
+
+    @staticmethod
+    def validate_exclude_servers(value, **_):
+        return Config._validate_uuid_list(value, "exclude_servers")
 
     @staticmethod
     def validate_server_list_type(value, **_) -> str:

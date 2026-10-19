@@ -20,11 +20,21 @@ class HTTPClient:
         t1 = time.time()
         servers = self.fetch_server()
         server_pages = {}
+        include_uuids = set(self.config.include_servers)
+        exclude_uuids = set(self.config.exclude_servers)
         pages = servers['meta']['pagination']['total_pages']
 
         for page in range(1, pages + 1):
             servers = self.fetch_server(page)
             for server_data in servers.get('data', []):
+                # Filter before requesting resource or backup statistics.
+                server_uuid = str(
+                    server_data.get('attributes', {}).get('uuid') or ''
+                ).strip().lower()
+                if include_uuids and server_uuid not in include_uuids:
+                    continue
+                if server_uuid in exclude_uuids:
+                    continue
                 if not (bool(server_data['attributes']['is_suspended']) or
                         bool(server_data['attributes']['is_installing']) or
                         bool(server_data['attributes']['is_transferring']) or
@@ -55,11 +65,16 @@ class HTTPClient:
         attributes = server_data.get('attributes', {})
         self.metrics.name.append(attributes.get('name', ''))
         self.metrics.id.append(attributes.get('identifier', ''))
+        self.metrics.uuid.append(str(attributes.get('uuid') or ''))
         self.metrics.max_memory.append(attributes['limits']['memory'])
         self.metrics.max_swap.append(attributes['limits']['swap'])
         self.metrics.max_disk.append(attributes['limits']['disk'])
         self.metrics.io.append(attributes['limits']['io'])
         self.metrics.max_cpu.append(attributes['limits']['cpu'])
+        backup_limit = attributes.get('feature_limits', {}).get('backups')
+        self.metrics.backup_limit.append(
+            float('nan') if backup_limit is None else float(backup_limit)
+        )
 
     def fetch_resources(self, server_id, index, page):
         url = f"{self.get_url()}/api/client/servers/{server_id}/resources?page={page}"
@@ -79,13 +94,19 @@ class HTTPClient:
         self.metrics.uptime.append(resources["uptime"])
 
     def fetch_last_backup_time(self, server_id, index, page):
-        url = f"{self.get_url()}/api/client/servers/{server_id}/backups?per_page=50&page={page}"
+        # Always fetch the first backup page, regardless of server-list pagination.
+        url = f"{self.get_url()}/api/client/servers/{server_id}/backups?per_page=50&page=1"
         response = requests.get(url, headers=self.headers, verify=not self.config.ignore_ssl)
         if response.status_code != 200:
             raise Exception(f"Fetch last backup for {self.metrics.name[index]}")
         response_data = response.json()
         response.close()
         backups = response_data["data"]
+        backup_meta = response_data.get('meta', {})
+        backup_count = backup_meta.get('backup_count')
+        if backup_count is None:
+            backup_count = backup_meta.get('pagination', {}).get('total', len(backups))
+        self.metrics.backup_count.append(float(backup_count))
         last_successful_backup = max(
             (dateutil.parser.isoparse(backup["attributes"]["completed_at"]).timestamp()
              for backup in backups

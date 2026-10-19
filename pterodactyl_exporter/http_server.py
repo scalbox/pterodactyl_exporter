@@ -8,6 +8,11 @@ class HTTPServer:
         start_http_server(config.port)
 
         label_names = ("server_name", "id",)
+        self.identity_info = Gauge(
+            "pterodactyl_server_identity_info",
+            "Server UUID metadata",
+            ("server_name", "id", "uuid")
+        )
 
         self.metric_gauges = {
             "memory": Gauge("pterodactyl_server_memory_mebibyte", "Memory used by server in mebibyte", label_names),
@@ -21,13 +26,16 @@ class HTTPServer:
             "max_disk": Gauge("pterodactyl_server_max_disk_mebibyte", "Maximum disk space allocated to server in mebibyte", label_names),
             "io": Gauge("pterodactyl_server_io", "IO weight of server", label_names),
             "max_cpu": Gauge("pterodactyl_server_max_cpu_absolute", "Maximum cpu load allowed to server", label_names),
-            "last_backup_time": Gauge("pterodactyl_server_most_recent_backup_time", "Timestamp of the most recent backup", label_names)
+            "last_backup_time": Gauge("pterodactyl_server_most_recent_backup_time", "Timestamp of the most recent backup", label_names),
+            "backup_count": Gauge("pterodactyl_server_backup_count", "Number of currently stored backups", label_names),
+            "backup_limit": Gauge("pterodactyl_server_backup_limit", "Maximum backup slots allowed by Pterodactyl", label_names)
         }
 
     def serve_metrics(self, metrics: Metrics):
         for index in range(len(metrics.name)):
             srv_label = metrics.name[index]
             id_label = metrics.id[index]
+            self.identity_info.labels(srv_label, id_label, metrics.uuid[index]).set(1)
             for metric_name, value in metrics.__dict__.items():
-                if metric_name not in ['name', 'id']:
+                if metric_name not in ['name', 'id', 'uuid']:
                     self.metric_gauges[metric_name].labels(srv_label, id_label).set(value[index])

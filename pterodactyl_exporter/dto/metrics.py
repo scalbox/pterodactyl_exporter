@@ -6,6 +6,7 @@ from typing import List
 class Metrics:
     name: List[str] = field(default_factory=list)
     id: List[str] = field(default_factory=list)
+    uuid: List[str] = field(default_factory=list)
     memory: List[float] = field(default_factory=list)
     cpu: List[float] = field(default_factory=list)
     disk: List[float] = field(default_factory=list)
@@ -18,6 +19,8 @@ class Metrics:
     io: List[float] = field(default_factory=list)
     max_cpu: List[float] = field(default_factory=list)
     last_backup_time: List[float] = field(default_factory=list)
+    backup_count: List[float] = field(default_factory=list)
+    backup_limit: List[float] = field(default_factory=list)
 
     def __iter__(self):
         fields = self.__dataclass_fields__.keys()
