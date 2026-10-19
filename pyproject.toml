@@ -29,7 +29,7 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/LOENS2/pterodactyl_exporter"
+Homepage = "https://github.com/scalbox/pterodactyl_exporter"
 
 [project.scripts]
 pterodactyl_exporter = "pterodactyl_exporter.pterodactyl_exporter:main"

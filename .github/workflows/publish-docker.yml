@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Publish Docker and Python release
 
 on:
   push:
@@ -59,3 +59,82 @@ jobs:
             PACKAGE_VERSION=${{ github.event_name == 'push' && github.ref_name || '0.0.0' }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+
+  python:
+    name: Test and build Python distributions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout tagged source with Git history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # setuptools-scm reads the Git tag for the package version.
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install package and test dependencies
+        run: python -m pip install '.[test]'
+
+      - name: Run regression tests
+        run: python -m pytest
+
+      - name: Install packaging tools
+        run: python -m pip install --upgrade build twine
+
+      - name: Build wheel and source distribution
+        run: python -m build --wheel --sdist
+
+      - name: Validate distribution metadata
+        run: python -m twine check dist/*
+
+      - name: Verify release package names
+        if: github.event_name == 'push'
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          test -f "dist/pterodactyl_exporter-${RELEASE_VERSION}-py3-none-any.whl"
+          test -f "dist/pterodactyl_exporter-${RELEASE_VERSION}.tar.gz"
+
+      - name: Save Python distributions for the release job
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    needs: [publish, python]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download verified Python distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist
+
+      - name: Create release with Python assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "::notice::Release $RELEASE_TAG already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" dist/* \
+            --verify-tag \
+            --title "Pterodactyl Exporter $RELEASE_TAG" \
+            --notes-from-tag \
+            --latest

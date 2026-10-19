@@ -41,12 +41,12 @@ other monitoring software to be installed on Pterodactyl nodes.
 
  - To install with pipx:
 ```
-pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.8"
+pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.9"
 ```
 
  - To install with pip _(not recommended, could break system dependencies)_:
 ```
-pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.8"
+pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.9"
 ```
  - Create directory `pterodactyl_exporter`.
  
@@ -212,9 +212,8 @@ different folders or choose distinct dashboard names during import.
 Starting with **1.0.9**, release images are published from this fork to GitHub
 Container Registry (GHCR). The Compose file uses the pinned image
 `ghcr.io/scalbox/pterodactyl_exporter:1.0.9` and does not use the upstream
-`loens2/pterodactyl_exporter` image. **The 1.0.9 image will be available only
-after the `1.0.9` Git tag is published and the GitHub Actions job succeeds.**
-Publishing a Git tag alone does not publish a Docker image.
+`loens2/pterodactyl_exporter` image. The Docker image is published by GitHub Actions after the version tag is pushed
+and its multi-platform build completes successfully.
 
 Create the files and edit `config.yml` with your Pterodactyl Client API details:
 
@@ -233,29 +232,52 @@ it is explicitly stopped. By default, it maps port 9531 on all host interfaces.
 If Prometheus runs on the same machine, you can restrict access by changing the
 port mapping to `127.0.0.1:9531:9531`.
 
-### Automatic GHCR releases
+### Automated Docker and Python releases
 
-The [Docker publishing workflow](.github/workflows/publish-docker.yml) runs
-when a new semantic version Git tag such as `1.0.9` is pushed. It:
+The [release workflow](.github/workflows/publish-docker.yml) runs whenever a
+stable version Git tag such as `1.0.10` is pushed. It:
 
-1. Checks out the exact tagged source, including this fork's exporter changes.
-2. Builds a Python wheel from that source and embeds the Git tag's package version.
-3. Builds Linux `amd64` and `arm64` Docker images.
-4. Publishes the versioned image (`:1.0.9`) and `:latest` to GHCR.
+1. Runs the Python regression tests, builds the wheel (`.whl`) and Python source
+   distribution (`.tar.gz`) from the exact tagged commit, and validates both.
+2. Builds Docker images for Linux `amd64` and `arm64` and publishes the versioned
+   image (`:1.0.10`) and `:latest` to GHCR.
+3. **Only after both jobs succeed**, creates a GitHub Release for the tag, with
+   the Python distributions attached as downloadable release assets.
+4. Uses the **annotated Git tag message** as the GitHub Release description.
 
-Before tagging a release, use **Actions > Publish Docker image > Run workflow**
-on the default branch to test the Docker build without publishing an image.
+GitHub automatically adds two source snapshots (ZIP and TAR.GZ) to every release.
+The workflow adds two different Python installation packages:
+`pterodactyl_exporter-X.Y.Z-py3-none-any.whl` (wheel) and
+`pterodactyl_exporter-X.Y.Z.tar.gz` (source distribution). The Docker image is
+published separately under GitHub Packages (GHCR), not as a release asset.
 
-No Docker Hub credentials or personal access tokens are needed for the workflow;
-it authenticates with GitHub's built-in `GITHUB_TOKEN` and `packages: write`
-permission. **Git tags are created by Git, not by GHCR.** The release tag
-points to the commit that contains the Dockerfile, Compose file and workflow;
-its annotated message can contain the release notes.
+Before creating a tag, use **Actions > Publish Docker and Python release > Run
+workflow** on `main` to validate Docker and Python builds. Manual runs do **not**
+publish Docker images or create GitHub Releases.
+
+To release a new version, first push the desired commits to `main`, then create
+an annotated tag pointing to that commit. For example, in PowerShell:
+
+```powershell
+git tag -a 1.0.10
+git push origin refs/tags/1.0.10
+```
+
+The `git tag -a` command opens your configured editor; write the complete
+English release notes in the tag message. A short one-line message also works,
+but the automated GitHub Release will then contain only that short message.
+Do not move an already published release tag to add workflow changes; publish
+the updated workflow on `main` **before** creating the next version tag.
+
+No Docker Hub credentials or personal access tokens are needed: the workflow
+uses GitHub's `GITHUB_TOKEN` with `packages: write` for GHCR and
+`contents: write` only for the release-publishing job. If a GitHub Release
+already exists for the same tag, a rerun leaves it unchanged.
 
 New GHCR packages may initially be private. After the first publish, open the
 package settings on GitHub and change its visibility to **Public** if users
 should be able to run `docker pull` without authentication.
- 
+
 ## Run manually
 
 #### Only meant for testing purposes, not recommended for production use!
