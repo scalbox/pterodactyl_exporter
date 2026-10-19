@@ -5,6 +5,11 @@ on:
     tags:
       - '[0-9]*.[0-9]*.[0-9]*'
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing version tag to publish or repair (leave empty for build validation)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -27,6 +32,8 @@ jobs:
 
       - name: Checkout tagged source
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -70,6 +77,7 @@ jobs:
       - name: Checkout tagged source with Git history
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.release_tag || github.ref }}
           fetch-depth: 0 # setuptools-scm reads the Git tag for the package version.
 
       - name: Set up Python
@@ -93,9 +101,9 @@ jobs:
         run: python -m twine check dist/*
 
       - name: Verify release package names
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || inputs.release_tag != ''
         env:
-          RELEASE_VERSION: ${{ github.ref_name }}
+          RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           test -f "dist/pterodactyl_exporter-${RELEASE_VERSION}-py3-none-any.whl"
           test -f "dist/pterodactyl_exporter-${RELEASE_VERSION}.tar.gz"
@@ -111,12 +119,31 @@ jobs:
   release:
     name: Publish GitHub Release
     needs: [publish, python]
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || inputs.release_tag != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
+      - name: Checkout annotated release tag and its history
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.release_tag }}
+          fetch-depth: 0 # gh --notes-from-tag needs the annotated tag locally.
+
+      - name: Validate release tag
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Expected a stable version tag such as 1.0.10"
+            exit 1
+          fi
+          git show-ref --verify --quiet "refs/tags/${RELEASE_TAG}" || {
+            echo "::error::Release tag $RELEASE_TAG was not found in the checkout"
+            exit 1
+          }
+
       - name: Download verified Python distributions
         uses: actions/download-artifact@v7
         with:
@@ -127,7 +154,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             echo "::notice::Release $RELEASE_TAG already exists; leaving it unchanged."
@@ -142,7 +169,7 @@ jobs:
   update-readme:
     name: Update README install version
     needs: release
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || inputs.release_tag != ''
     runs-on: ubuntu-latest
     concurrency:
       group: readme-install-version
@@ -160,7 +187,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           set -euo pipefail
 
