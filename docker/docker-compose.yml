@@ -1,7 +1,7 @@
 services:
   pterodactyl-exporter:
-    # Published automatically by GitHub Actions when the 1.0.9 tag is pushed.
-    image: ghcr.io/scalbox/pterodactyl_exporter:1.0.9
+    # Versioned image published automatically by GitHub Actions.
+    image: ghcr.io/scalbox/pterodactyl_exporter:1.0.10
     container_name: pterodactyl-exporter
     restart: unless-stopped
     ports:
