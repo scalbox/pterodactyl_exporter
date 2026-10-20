@@ -81,12 +81,12 @@ The exporter port is set by the server's Pterodactyl allocation.
 
  - To install with pipx:
 ```
-pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.12"
+pipx install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.13"
 ```
 
  - To install with pip _(not recommended, could break system dependencies)_:
 ```
-pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.12"
+pip install "git+https://github.com/scalbox/pterodactyl_exporter.git@1.0.13"
 ```
  - Create directory `pterodactyl_exporter`.
  

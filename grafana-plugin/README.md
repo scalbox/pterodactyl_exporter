@@ -158,19 +158,10 @@ The **source code** is in
 is committed in [`dist/`](dist/).
 Every new version tag published through the GitHub Actions release workflow
 also builds/tests the plugin and adds the installable asset
-`scalbox-pterodactyl-uptime-X.Y.Z.zip` to the
+`scalbox-pterodactyl-uptime-1.0.13.zip` to the
 [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 page alongside the Python packages.
 
-<!-- plugin-release-pending:start -->
-**Release availability:** No release currently includes the compiled plugin
-ZIP; the latest exporter release (`1.0.12`) predates the beta plugin.
-The `X.Y.Z` values below are intentionally placeholders **until a release
-actually publishes the ZIP**. After that release succeeds, the workflow
-replaces the placeholders automatically with its real version in this README
-and keeps them synchronized on future releases. Do not run the ZIP download
-or `preinstall` example while these placeholders remain.
-<!-- plugin-release-pending:end -->
 
 **Plugin ID update:** use a release created after the plugin was renamed.
 Older release ZIP files have a different plugin ID and folder name, and are
@@ -197,7 +188,7 @@ when Grafana starts. No local Node.js build or manual extraction is needed.
    ```ini
    [plugins]
    allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime
-   preinstall = scalbox-pterodactyl-uptime@X.Y.Z@https://github.com/scalbox/pterodactyl_exporter/releases/download/X.Y.Z/scalbox-pterodactyl-uptime-X.Y.Z.zip
+   preinstall = scalbox-pterodactyl-uptime@1.0.13@https://github.com/scalbox/pterodactyl_exporter/releases/download/1.0.13/scalbox-pterodactyl-uptime-1.0.13.zip
    ```
 
    The release workflow sets the **same version** in the plugin ID, download
@@ -248,7 +239,7 @@ already contains the required `scalbox-pterodactyl-uptime/` directory. You need
 1. **Use the published plugin version maintained by the release workflow:**
 
    ```bash
-   PLUGIN_VERSION="X.Y.Z"
+   PLUGIN_VERSION="1.0.13"
    ```
 
 2. **Download the compiled plugin** from GitHub Releases:
