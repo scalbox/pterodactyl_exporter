@@ -13,8 +13,8 @@
   "__requires": [
     {
       "type": "panel",
-      "id": "scalbox-uptime-panel",
-      "name": "Scalbox Uptime & Restart Monitor",
+      "id": "scalbox-pterodactyl-uptime",
+      "name": "Scalbox - Pterodactyl Uptime & Restart Monitor",
       "version": "1.0.0"
     },
     {
@@ -782,7 +782,7 @@
             }
           ],
           "title": "Uptime & Restart Monitor",
-          "type": "scalbox-uptime-panel"
+          "type": "scalbox-pterodactyl-uptime"
         }
       ],
       "title": "Advanced uptime (optional plugin)",
