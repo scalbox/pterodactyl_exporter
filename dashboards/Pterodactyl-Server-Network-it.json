@@ -1012,13 +1012,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(pterodactyl_server_memory_mebibyte{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (memory_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end()), \"memory_limit\", \"$1 MiB\", \"memory_limit\", \"^(.+)$\"), \"memory_limit\", \"illimitato\", \"memory_limit\", \"^0 MiB$\") > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_memory_mebibyte{server_name=~\"$server\"}, \"memory_limit\", \"non disponibile\", \"server_name\", \".*\")",
+          "expr": "(pterodactyl_server_memory_mebibyte{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (memory_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() >= 0 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() < 1024), 0.1)), \"memory_limit\", \"$1 MiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() >= 1024 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() < 1048576) / 1024, 0.1)), \"memory_limit\", \"$1 GiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() >= 1048576 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() < 1073741824) / 1048576, 0.1)), \"memory_limit\", \"$1 TiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"memory_limit\", \"$1 PiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", (pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\"} @ end() == 0)), \"memory_limit\", \"illimitato\", \"memory_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_memory_mebibyte{server_name=~\"$server\"}, \"memory_limit\", \"non disponibile\", \"server_name\", \".*\")",
           "legendFormat": "{{server_name}} ({{id}}) · Limite {{memory_limit}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Memory usage / limite (MiB)",
+      "title": "Memory usage / limite",
       "type": "timeseries",
       "description": "Una curva e una riga per server: valore utilizzato nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato)."
     },
@@ -1234,13 +1234,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(pterodactyl_server_disk_mebibyte{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (disk_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end()), \"disk_limit\", \"$1 MiB\", \"disk_limit\", \"^(.+)$\"), \"disk_limit\", \"illimitato\", \"disk_limit\", \"^0 MiB$\") > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_disk_mebibyte{server_name=~\"$server\"}, \"disk_limit\", \"non disponibile\", \"server_name\", \".*\")",
+          "expr": "(pterodactyl_server_disk_mebibyte{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (disk_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() >= 0 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() < 1024), 0.1)), \"disk_limit\", \"$1 MiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() >= 1024 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() < 1048576) / 1024, 0.1)), \"disk_limit\", \"$1 GiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() >= 1048576 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() < 1073741824) / 1048576, 0.1)), \"disk_limit\", \"$1 TiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"disk_limit\", \"$1 PiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", (pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\"} @ end() == 0)), \"disk_limit\", \"illimitato\", \"disk_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_disk_mebibyte{server_name=~\"$server\"}, \"disk_limit\", \"non disponibile\", \"server_name\", \".*\")",
           "legendFormat": "{{server_name}} ({{id}}) · Limite {{disk_limit}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Disk usage / limite (MiB)",
+      "title": "Disk usage / limite",
       "type": "timeseries",
       "description": "Una curva e una riga per server: valore utilizzato nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato)."
     },
