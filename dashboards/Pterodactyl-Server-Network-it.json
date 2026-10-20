@@ -140,106 +140,7 @@
               }
             ]
           },
-          "unit": "percent",
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 1
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"illimitato\", \"cpu_limit\", \"^0%$\") > bool 0)",
-          "legendFormat": "{{server_name}} ({{id}}) · Limite {{cpu_limit}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "CPU usage / limite",
-      "type": "timeseries",
-      "description": "Una sola curva per server: la colonna Last mostra la CPU usata in percentuale assoluta (es. 240%), mentre nella stessa riga della legenda compare il limite configurato (es. 500%). Il limite è fissato al valore alla fine dell'intervallo; 0 significa illimitato."
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent",
+          "unit": "ms",
           "unitScale": true,
           "min": 0,
           "decimals": 2
@@ -249,16 +150,14 @@
       "gridPos": {
         "h": 6,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 1
       },
-      "id": 44,
+      "id": 42,
       "options": {
         "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "displayMode": "table",
+          "calcs": [],
+          "displayMode": "list",
           "placement": "right",
           "showLegend": true
         },
@@ -274,15 +173,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * pterodactyl_server_cpu_absolute{server_name=~\"$server\"} / on (server_name, id) clamp_min(pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"}, 1) and on (server_name, id) (pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0)",
-          "legendFormat": "Server: {{server_name}}, ID: {{id}}",
+          "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
+          "legendFormat": "{{panel}} / {{server_name}} ({{id}})",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU usage percent",
+      "title": "Uptime - Storico",
       "type": "timeseries",
-      "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
+      "description": "Andamento nel tempo dell'uptime dei singoli server. Quando un server si riavvia, il valore torna vicino a zero. Lo storico e' disponibile da quando Prometheus ha iniziato a raccogliere i dati."
     },
     {
       "datasource": {
@@ -314,7 +213,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 7
+        "y": 1
       },
       "id": 22,
       "options": {
@@ -409,10 +308,8 @@
               }
             ]
           },
-          "unit": "ms",
-          "unitScale": true,
-          "min": 0,
-          "decimals": 2
+          "unit": "percent",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -422,11 +319,114 @@
         "x": 0,
         "y": 7
       },
-      "id": 42,
+      "id": 2,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(pterodactyl_server_cpu_absolute{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"illimitato\", \"cpu_limit\", \"^0%$\") > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_cpu_absolute{server_name=~\"$server\"}, \"cpu_limit\", \"non disponibile\", \"server_name\", \".*\")",
+          "legendFormat": "{{server_name}} ({{id}}) · Limite {{cpu_limit}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU usage / limite",
+      "type": "timeseries",
+      "description": "Una riga e una curva per server. La colonna Last indica la CPU utilizzata (es. 240%); la legenda riporta il limite (es. 500%). I server senza limite (0) compaiono come 'illimitato'; se il limite non è disponibile, viene mostrato comunque l'utilizzo. Il limite usa il valore alla fine dell'intervallo selezionato."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true,
+          "min": 0,
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "id": 44,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
           "placement": "right",
           "showLegend": true
         },
@@ -442,15 +442,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
-          "legendFormat": "{{panel}} / {{server_name}} ({{id}})",
+          "expr": "100 * pterodactyl_server_cpu_absolute{server_name=~\"$server\"} / on (server_name, id) clamp_min(pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"}, 1) and on (server_name, id) (pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0)",
+          "legendFormat": "Server: {{server_name}}, ID: {{id}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Uptime - Storico",
+      "title": "CPU usage percent",
       "type": "timeseries",
-      "description": "Andamento nel tempo dell'uptime dei singoli server. Quando un server si riavvia, il valore torna vicino a zero. Lo storico e' disponibile da quando Prometheus ha iniziato a raccogliere i dati."
+      "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
     },
     {
       "collapsed": false,
