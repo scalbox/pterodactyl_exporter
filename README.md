@@ -54,10 +54,20 @@ other monitoring software to be installed on Pterodactyl nodes.
 
 ## Run as Pterodactyl Server
 
- - Download the Egg JSON from `egg/egg-pterodactyl-exporter.json` or the releases
+ - Download the [Egg JSON](egg/egg-pterodactyl-exporter.json) or the releases
  - Import the Egg into the Nest of your choice
  - Create the server from the egg and fill in the required config values
  - Run the server
+
+The egg installs the **Scalbox fork** directly from GitHub (not the original
+PyPI package). It exposes the exporter bind address through
+`LISTEN_ADDRESS` (default: `0.0.0.0`, required for container port access)
+and server filters through `INCLUDE_SERVERS` and `EXCLUDE_SERVERS`.
+Enter **full server UUIDs** separated by commas, spaces or newlines.
+Leave both filters empty to monitor all accessible servers. Exclusions take
+precedence over inclusions. The egg converts the filter values into YAML
+lists automatically at each startup without changing your `config.yml`.
+The exporter port is set by the server's Pterodactyl allocation.
 
 ## Run as service
 

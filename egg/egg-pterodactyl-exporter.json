@@ -6,23 +6,23 @@
     },
     "exported_at": "2025-05-29T13:53:47+02:00",
     "name": "Pterodactyl Exporter",
-    "author": "info@loens2.com",
-    "description": "The official Pterodactyl Egg for the Prometheus Exporter by LOENS2.",
+    "author": "sysoftware.inc@gmail.com",
+    "description": "Prometheus exporter for Pterodactyl Panel 1.x, maintained in the Scalbox fork (server UUID filters and extra metrics).",
     "features": null,
     "docker_images": {
-        "Python 3.11": "ghcr.io\/parkervcp\/yolks:python_3.11"
+        "Python 3.11": "ghcr.io/parkervcp/yolks:python_3.11"
     },
     "file_denylist": [],
-    "startup": "cd .python; python -m pterodactyl_exporter.pterodactyl_exporter --config-file=..\/config.yml",
+    "startup": "cd .python && python -m pterodactyl_exporter.egg_config --source ../config.yml --output egg_config.yml && exec python -m pterodactyl_exporter.pterodactyl_exporter --config-file=egg_config.yml",
     "config": {
-        "files": "{\r\n    \"config.yml\": {\r\n        \"parser\": \"yaml\",\r\n        \"find\": {\r\n            \"host\": \"{{server.build.env.HOSTNAME}}\",\r\n            \"host_port\": \"{{server.build.env.HOST_PORT}}\",\r\n            \"port\": \"{{server.build.default.port}}\",\r\n            \"api_key\": \"{{server.build.env.API_KEY}}\",\r\n            \"https\": \"{{server.build.env.HTTPS}}\",\r\n            \"ignore_ssl\": \"{{server.build.env.IGNORE_SSL}}\",\r\n            \"server_list_type\": \"{{server.build.env.SERVER_LIST_TYPE}}\",\r\n            \"query_interval\": \"{{server.build.env.QUERY_INTERVAL}}\"\r\n        }\r\n    }\r\n}",
+        "files": "{\n    \"config.yml\": {\n        \"parser\": \"yaml\",\n        \"find\": {\n            \"host\": \"{{server.build.env.HOSTNAME}}\",\n            \"host_port\": \"{{server.build.env.HOST_PORT}}\",\n            \"port\": \"{{server.build.default.port}}\",\n            \"api_key\": \"{{server.build.env.API_KEY}}\",\n            \"https\": \"{{server.build.env.HTTPS}}\",\n            \"ignore_ssl\": \"{{server.build.env.IGNORE_SSL}}\",\n            \"server_list_type\": \"{{server.build.env.SERVER_LIST_TYPE}}\",\n            \"query_interval\": \"{{server.build.env.QUERY_INTERVAL}}\",\n            \"listen_address\": \"{{server.build.env.LISTEN_ADDRESS}}\"\n        }\n    }\n}",
         "startup": "{\r\n    \"done\": \"Init successful!\"\r\n}",
         "logs": "{}",
         "stop": "^C^C"
     },
     "scripts": {
         "installation": {
-            "script": "#!\/bin\/bash\r\n# Python App Installation Script\r\n\r\napt update && apt upgrade -y\r\n\r\napt install -y curl\r\n\r\nmkdir -p \/mnt\/server\r\ncd \/mnt\/server\r\n\r\nexport HOME=\/mnt\/server\r\n\r\nif [ -d \"\/home\/container\/pterodactyl_exporter\/\" ]; then\r\n    echo \"Installation found! Updating.\"\r\n    pip install -U --target .python --upgrade pterodactyl_exporter\r\nelse\r\n    pip install -U --target .python pterodactyl_exporter\r\nfi\r\n\r\nif ! [ -f \"\/home\/container\/config.yml\" ]; then\r\n    curl -fsSL -o config.yml https:\/\/raw.githubusercontent.com\/LOENS2\/pterodactyl_exporter\/master\/config.example.yml\r\nfi\r\n\r\necho -e \"Install process complete!\"\r\nexit 0",
+            "script": "#!/bin/bash\n# Install the Scalbox fork of Pterodactyl Exporter.\nset -euo pipefail\n\napt-get update\napt-get install -y --no-install-recommends ca-certificates curl git\n\nmkdir -p /mnt/server/.python\ncd /mnt/server\n\n# Upgrade the exporter code and dependencies directly from the Scalbox fork.\npython -m pip install --disable-pip-version-check --no-cache-dir --upgrade \\\n    --target /mnt/server/.python \\\n    \"git+https://github.com/scalbox/pterodactyl_exporter.git@main\"\n\n# Preserve an existing, user-customized configuration.\nif [ ! -f /mnt/server/config.yml ]; then\n    curl -fsSL \\\n        https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/config.example.yml \\\n        -o /mnt/server/config.yml\nfi\n\necho \"Scalbox Pterodactyl Exporter installation complete!\"\n",
             "container": "python:3.11-slim",
             "entrypoint": "bash"
         }
@@ -36,6 +36,16 @@
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Listen Address",
+            "description": "IP address the exporter binds to inside the container. Keep 0.0.0.0 for Prometheus access through the Pterodactyl allocation. Use a valid IPv4 or IPv6 address.",
+            "env_variable": "LISTEN_ADDRESS",
+            "default_value": "0.0.0.0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|ip",
             "field_type": "text"
         },
         {
@@ -85,17 +95,37 @@
             "default_value": "10",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|integer",
+            "rules": "required|integer|min:1",
             "field_type": "text"
         },
         {
-            "name": "Host Port",
-            "description": "The port of the Panel you want to export the metrics from",
+            "name": "Panel Port (optional)",
+            "description": "Optional port of the Pterodactyl Panel API, not the exporter listening port (which uses the server allocation).",
             "env_variable": "HOST_PORT",
             "default_value": "",
-            "user_viewable": false,
-            "user_editable": false,
-            "rules": "nullable|integer|max:65535",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|integer|min:1|max:65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Include Servers (UUIDs)",
+            "description": "Optional full server UUIDs separated by commas, spaces or newlines. Empty = all servers accessible to the API key (except exclusions).",
+            "env_variable": "INCLUDE_SERVERS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Exclude Servers (UUIDs)",
+            "description": "Optional full server UUIDs separated by commas, spaces or newlines. These servers are excluded even if also included.",
+            "env_variable": "EXCLUDE_SERVERS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
             "field_type": "text"
         }
     ]
