@@ -336,12 +336,13 @@ Grafana dashboard in the [`dashboards/`](dashboards/) directory:
 
 ### Dashboard screenshots
 
-The screenshots below show the dashboard with anonymized server names and UUIDs.
-Click an image to view it at full resolution.
+The screenshots below use anonymized server labels (`Server 1`, `Server 2`, etc.),
+generic panel labels (`Panel A`, `Panel B`), and no real server UUIDs or panel
+hostnames. Click an image to view it at full resolution.
 
-**CPU, Uptime, Memory, and Disk**
+**CPU, Uptime, and Memory**
 
-[![CPU, Uptime, Memory, and Disk dashboard panels](dashboards/screenshots/01-cpu-uptime-memory-disk.png)](dashboards/screenshots/01-cpu-uptime-memory-disk.png)
+[![CPU, Uptime, and Memory dashboard panels](dashboards/screenshots/01-cpu-uptime-memory-disk.png)](dashboards/screenshots/01-cpu-uptime-memory-disk.png)
 
 **Network RX/TX — Current and Cumulative**
 
@@ -365,7 +366,8 @@ over the currently selected dashboard interval, not an authoritative restart
 log. An offline server has no reliable current reboot timestamp and shows
 `Unavailable` / `Non disponibile`. `Notes` indicates online/offline status
 and whether a reset was detected. Date/time uses Grafana's date/time display
-settings. No screenshot of the new table is included yet.
+settings. The first screenshot shows the built-in Uptime Summary table,
+including the server state, last reboot, and detected restarts.
 
 ### Dashboard features and import
 
