@@ -1,5 +1,5 @@
 {
-  "name": "scalbox-uptime-panel",
+  "name": "scalbox-pterodactyl-uptime",
   "version": "1.0.0",
   "private": true,
   "description": "Scrollable Pterodactyl uptime and restart monitoring panel for Grafana",
