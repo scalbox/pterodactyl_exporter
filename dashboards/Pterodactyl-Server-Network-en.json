@@ -202,7 +202,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "One row per server; horizontally displayed Uptime gauge with automatic scaling. A visible status legend appears below and in this info tooltip. Hover over the Notes cell tooltip indicator (Grafana 12.2+) for details. 'Restarted in range' means at least one uptime reset detected in the selected time window; restarts are estimates from Prometheus samples, not system events.",
+      "description": "One row per server; horizontally displayed Uptime gauge with automatic scaling. A visible status legend appears below and in this info tooltip. Hover over the Notes cell tooltip indicator (Grafana 12.2+) for details. 'Restarted in range' means at least one uptime reset detected in the selected time window; restarts are estimates from Prometheus samples, not system events. The Uptime gauge uses field-specific min/max so reboot timestamps do not distort the bar scale.",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -229,7 +229,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 315
+                "value": 295
               }
             ]
           },
@@ -245,7 +245,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 175
+                "value": 255
               },
               {
                 "id": "mappings",
@@ -284,6 +284,14 @@
                     }
                   ]
                 }
+              },
+              {
+                "id": "fieldMinMax",
+                "value": true
+              },
+              {
+                "id": "min",
+                "value": 0
               }
             ]
           },
@@ -299,7 +307,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 175
+                "value": 172
               },
               {
                 "id": "mappings",
@@ -328,7 +336,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 95
+                "value": 85
               }
             ]
           },
@@ -340,7 +348,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 185
+                "value": 170
               },
               {
                 "id": "custom.cellOptions",
@@ -522,6 +530,53 @@
           }
         },
         {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "server_name": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #A": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #B": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #C": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #D": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #E": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
@@ -533,20 +588,20 @@
               "id": true
             },
             "indexByName": {
-              "server_name": 0,
-              "Value #A": 1,
-              "Value #B": 2,
-              "Value #C": 3,
-              "Value #D": 4,
-              "Value #E": 5
+              "server_name (lastNotNull)": 0,
+              "Value #A (lastNotNull)": 1,
+              "Value #B (lastNotNull)": 2,
+              "Value #C (lastNotNull)": 3,
+              "Value #D (lastNotNull)": 4,
+              "Value #E (lastNotNull)": 5
             },
             "renameByName": {
-              "server_name": "Server",
-              "Value #A": "Uptime",
-              "Value #B": "Last reboot",
-              "Value #C": "Restarts",
-              "Value #D": "Notes",
-              "Value #E": "Notes details"
+              "server_name (lastNotNull)": "Server",
+              "Value #A (lastNotNull)": "Uptime",
+              "Value #B (lastNotNull)": "Last reboot",
+              "Value #C (lastNotNull)": "Restarts",
+              "Value #D (lastNotNull)": "Notes",
+              "Value #E (lastNotNull)": "Notes details"
             }
           }
         }
