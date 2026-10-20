@@ -449,9 +449,11 @@ stable version Git tag such as `1.0.11` is pushed. It:
 3. **Only after both jobs succeed**, creates a GitHub Release for the tag, with
    the Python distributions attached as downloadable release assets.
 4. Uses the **annotated Git tag message** as the GitHub Release description.
-5. Updates the version in both `pipx` and `pip` installation commands and the
-   Docker Compose image tag on `main` after successful release publication.
-   It never replaces a newer installed version with an older one.
+5. Updates the version in both `pipx` and `pip` installation commands, the
+   Docker Compose image tag, and the Grafana plugin download/`preinstall`
+   examples in [the plugin README](grafana-plugin/README.md), only after the
+   plugin ZIP has been attached to the successful GitHub Release. It never
+   replaces a newer documented version with an older one.
 
 GitHub automatically adds two source snapshots (ZIP and TAR.GZ) to every release.
 The workflow adds two different Python installation packages:

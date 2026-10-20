@@ -162,6 +162,16 @@ also builds/tests the plugin and adds the installable asset
 [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 page alongside the Python packages.
 
+<!-- plugin-release-pending:start -->
+**Release availability:** No release currently includes the compiled plugin
+ZIP; the latest exporter release (`1.0.12`) predates the beta plugin.
+The `X.Y.Z` values below are intentionally placeholders **until a release
+actually publishes the ZIP**. After that release succeeds, the workflow
+replaces the placeholders automatically with its real version in this README
+and keeps them synchronized on future releases. Do not run the ZIP download
+or `preinstall` example while these placeholders remain.
+<!-- plugin-release-pending:end -->
+
 **Plugin ID update:** use a release created after the plugin was renamed.
 Older release ZIP files have a different plugin ID and folder name, and are
 not compatible with the new configuration examples below. When upgrading an
@@ -190,12 +200,12 @@ when Grafana starts. No local Node.js build or manual extraction is needed.
    preinstall = scalbox-pterodactyl-uptime@X.Y.Z@https://github.com/scalbox/pterodactyl_exporter/releases/download/X.Y.Z/scalbox-pterodactyl-uptime-X.Y.Z.zip
    ```
 
-   Replace **all three** `X.Y.Z` occurrences with the **same** release tag
-   (for example, `1.0.13`). Choose a release that actually contains the
-   `scalbox-pterodactyl-uptime-X.Y.Z.zip` asset. The Grafana host must be able to
-   reach GitHub and follow its ZIP download redirects. If other plugins are
-   already listed in `preinstall`, preserve them and append this entry with
-   a comma.
+   The release workflow sets the **same version** in the plugin ID, download
+   URL and ZIP filename in this example, **only after the ZIP is published**.
+   Use the resulting versioned entry in your own `grafana.ini`. The Grafana
+   host must be able to reach GitHub and follow ZIP download redirects. If
+   other plugins are already listed in `preinstall`, preserve them and append
+   this entry with a comma.
 
 2. **Restart Grafana**:
 
@@ -235,7 +245,7 @@ Follow these steps on a standard **Linux installation of Grafana**. The ZIP
 already contains the required `scalbox-pterodactyl-uptime/` directory. You need
 `curl` and `unzip` installed. Use a release that includes the plugin ZIP.
 
-1. **Choose a published version** (replace `X.Y.Z`):
+1. **Use the published plugin version maintained by the release workflow:**
 
    ```bash
    PLUGIN_VERSION="X.Y.Z"

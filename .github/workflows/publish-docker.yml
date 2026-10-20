@@ -242,7 +242,7 @@ jobs:
         with:
           ref: main
 
-      - name: Update pinned pip, pipx and Docker Compose versions
+      - name: Update pinned pip, pipx, Docker Compose and Grafana plugin versions
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -265,6 +265,31 @@ jobs:
           fi
 
           current_tag="${installed_tags[0]}"
+          plugin_readme="grafana-plugin/README.md"
+          mapfile -t plugin_pins < <(
+            sed -nE 's/^[[:space:]]*PLUGIN_VERSION="(X\.Y\.Z|[0-9]+\.[0-9]+\.[0-9]+)"[[:space:]]*$/\1/p' "$plugin_readme"
+          )
+          if [[ "${#plugin_pins[@]}" -ne 1 ]]; then
+            echo "::error::Expected exactly one workflow-managed PLUGIN_VERSION in $plugin_readme."
+            exit 1
+          fi
+          if ! grep -Eq '^[[:space:]]*preinstall = scalbox-pterodactyl-uptime@(X\.Y\.Z|[0-9]+\.[0-9]+\.[0-9]+)@https://github.com/scalbox/pterodactyl_exporter/releases/download/' "$plugin_readme"; then
+            echo "::error::Expected the workflow-managed Grafana preinstall URL in $plugin_readme."
+            exit 1
+          fi
+          plugin_tag="${plugin_pins[0]}"
+          plugin_tag_for_sort="$plugin_tag"
+          if [[ "$plugin_tag" == "X.Y.Z" ]]; then
+            plugin_tag_for_sort="0.0.0" # No plugin ZIP has been released yet.
+          fi
+
+          # Never publish README links before the ZIP really exists in GitHub Releases.
+          if ! gh api "repos/${GH_REPO}/releases/tags/${RELEASE_TAG}" --jq '.assets[].name' |
+            grep -Fx "scalbox-pterodactyl-uptime-${RELEASE_TAG}.zip" >/dev/null; then
+            echo "::error::Release ${RELEASE_TAG} does not contain the compiled Grafana plugin ZIP."
+            exit 1
+          fi
+
           compose_file="docker/docker-compose.yml"
           compose_tag="$(sed -nE 's|^[[:space:]]*image:[[:space:]]*ghcr\.io/scalbox/pterodactyl_exporter:([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]*$|\1|p' "$compose_file")"
           if [[ ! "$compose_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -272,9 +297,9 @@ jobs:
             exit 1
           fi
 
-          highest="$(printf "%s\n%s\n%s\n" "$current_tag" "$compose_tag" "$RELEASE_TAG" | sort -V | tail -n 1)"
+          highest="$(printf "%s\n%s\n%s\n%s\n" "$current_tag" "$compose_tag" "$plugin_tag_for_sort" "$RELEASE_TAG" | sort -V | tail -n 1)"
           if [[ "$highest" != "$RELEASE_TAG" ]]; then
-            echo "::notice::Keeping newer install example (README $current_tag, Compose $compose_tag; release $RELEASE_TAG)."
+            echo "::notice::Keeping newer install example (README $current_tag, Compose $compose_tag, plugin $plugin_tag; release $RELEASE_TAG)."
             exit 0
           fi
 
@@ -282,13 +307,63 @@ jobs:
           sed -E -i "s|^([[:space:]]*image:[[:space:]]*ghcr\.io/scalbox/pterodactyl_exporter:)[0-9]+\.[0-9]+\.[0-9]+([[:space:]]*)$|\1${RELEASE_TAG}\2|" "$compose_file"
           sed -E -i 's|^([[:space:]]*)# Published automatically by GitHub Actions when the [0-9]+\.[0-9]+\.[0-9]+ tag is pushed\.$|\1# Versioned image published automatically by GitHub Actions.|' "$compose_file"
 
-          if git diff --quiet -- README.md "$compose_file"; then
-            echo "::notice::README.md and Docker Compose already point to $RELEASE_TAG."
+          # The plugin README uses X.Y.Z until the first real ZIP is published.
+          # Update the manual download and Grafana's pinned preinstall URL together.
+          python3 - "$RELEASE_TAG" "$plugin_readme" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          tag = sys.argv[1]
+          path = Path(sys.argv[2])
+          content = path.read_text(encoding="utf-8")
+          version = r"(?:X\.Y\.Z|[0-9]+\.[0-9]+\.[0-9]+)"
+
+          manual_pattern = rf'(?m)^(\s*PLUGIN_VERSION="){version}(")$'
+          content, manual_count = re.subn(
+              manual_pattern, lambda match: f'{match[1]}{tag}{match[2]}', content
+          )
+
+          preinstall_pattern = (
+              rf"(?m)^(\s*preinstall = scalbox-pterodactyl-uptime@)"
+              rf"{version}@https://github.com/scalbox/pterodactyl_exporter/"
+              rf"releases/download/{version}/scalbox-pterodactyl-uptime-{version}\.zip$"
+          )
+          preinstall_value = (
+              "https://github.com/scalbox/pterodactyl_exporter/"
+              f"releases/download/{tag}/scalbox-pterodactyl-uptime-{tag}.zip"
+          )
+          content, preinstall_count = re.subn(
+              preinstall_pattern,
+              lambda match: f"{match[1]}{tag}@{preinstall_value}",
+              content,
+          )
+          if manual_count != 1 or preinstall_count != 1:
+              raise SystemExit(
+                  "Expected exactly one manual and one Grafana preinstall plugin version"
+              )
+
+          content = re.sub(
+              rf"scalbox-pterodactyl-uptime-{version}\.zip",
+              f"scalbox-pterodactyl-uptime-{tag}.zip",
+              content,
+          )
+          content = re.sub(
+              r"(?ms)^<!-- plugin-release-pending:start -->\n.*?"
+              r"^<!-- plugin-release-pending:end -->\n",
+              "",
+              content,
+          )
+          path.write_text(content, encoding="utf-8")
+          PY
+
+          if git diff --quiet -- README.md "$compose_file" "$plugin_readme"; then
+            echo "::notice::Exporter, Docker Compose and Grafana plugin examples already point to $RELEASE_TAG."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md "$compose_file"
+          git add README.md "$compose_file" "$plugin_readme"
           git commit -m "docs(install): synchronize versioned examples to $RELEASE_TAG [skip ci]"
           git push origin HEAD:main
