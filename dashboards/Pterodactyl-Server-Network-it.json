@@ -974,7 +974,8 @@
             ]
           },
           "unit": "mbytes",
-          "unitScale": true
+          "unitScale": true,
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1020,7 +1021,7 @@
       ],
       "title": "Memory usage / limite",
       "type": "timeseries",
-      "description": "Una curva e una riga per server: valore utilizzato nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato)."
+      "description": "Una curva e una riga per server: memoria utilizzata nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato). Unità binarie automatiche (MiB/GiB/TiB)."
     },
     {
       "datasource": {
@@ -1196,7 +1197,8 @@
             ]
           },
           "unit": "mbytes",
-          "unitScale": true
+          "unitScale": true,
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1242,7 +1244,7 @@
       ],
       "title": "Disk usage / limite",
       "type": "timeseries",
-      "description": "Una curva e una riga per server: valore utilizzato nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato)."
+      "description": "Una curva e una riga per server: spazio disco utilizzato nel grafico e nella colonna Last, limite configurato nella legenda (0 = illimitato). Unità binarie automatiche (MiB/GiB/TiB)."
     },
     {
       "datasource": {
@@ -1420,7 +1422,7 @@
           "unit": "Mbits",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1464,9 +1466,9 @@
           "refId": "A"
         }
       ],
-      "title": "Network Traffic RX - Attuale (Mbps)",
+      "title": "Network Traffic RX - Attuale (bit/s)",
       "type": "timeseries",
-      "description": "Velocita' media di ricezione per server in Mbps, calcolata sugli ultimi 5 minuti."
+      "description": "Velocità media di ricezione per server negli ultimi 5 minuti; bit/s (SI) con scala automatica kbps/Mbps/Gbps."
     },
     {
       "datasource": {
@@ -1527,7 +1529,7 @@
           "unit": "Mbits",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1571,9 +1573,9 @@
           "refId": "A"
         }
       ],
-      "title": "Network Traffic TX - Attuale (Mbps)",
+      "title": "Network Traffic TX - Attuale (bit/s)",
       "type": "timeseries",
-      "description": "Velocita' media di trasmissione per server in Mbps, calcolata sugli ultimi 5 minuti."
+      "description": "Velocità media di trasmissione per server negli ultimi 5 minuti; bit/s (SI) con scala automatica kbps/Mbps/Gbps."
     },
     {
       "datasource": {
@@ -1634,7 +1636,7 @@
           "unit": "Mbits",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1681,9 +1683,9 @@
           "refId": "B"
         }
       ],
-      "title": "Network Traffic RX / TX - Attuale (Mbps)",
+      "title": "Network Traffic RX / TX - Attuale (bit/s)",
       "type": "timeseries",
-      "description": "Velocita' RX e TX in Mbps: due serie distinte per ogni server, media sugli ultimi 5 minuti."
+      "description": "Velocità RX e TX come due serie distinte per server, mediate sugli ultimi 5 minuti; bit/s (SI) con scala automatica kbps/Mbps/Gbps."
     },
     {
       "datasource": {
@@ -1744,7 +1746,7 @@
           "unit": "bytes",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1790,7 +1792,7 @@
       ],
       "title": "Network RX - Cumulativo",
       "type": "timeseries",
-      "description": "Traffico ricevuto cumulativo di ciascun server (byte con scala automatica MiB/GiB)."
+      "description": "Traffico ricevuto cumulativo di ciascun server, in byte con scala binaria con scala automatica MiB/GiB/TiB/PiB."
     },
     {
       "datasource": {
@@ -1851,7 +1853,7 @@
           "unit": "bytes",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -1897,7 +1899,7 @@
       ],
       "title": "Network TX - Cumulativo",
       "type": "timeseries",
-      "description": "Traffico trasmesso cumulativo di ciascun server (byte con scala automatica MiB/GiB)."
+      "description": "Traffico trasmesso cumulativo di ciascun server, in byte con scala binaria con scala automatica MiB/GiB/TiB/PiB."
     },
     {
       "datasource": {
@@ -1958,7 +1960,7 @@
           "unit": "bytes",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -2007,7 +2009,7 @@
       ],
       "title": "Network RX / TX - Cumulativo",
       "type": "timeseries",
-      "description": "Traffico cumulativo RX e TX: due serie distinte per server (byte, scala MiB/GiB automatica)."
+      "description": "Traffico cumulativo RX e TX: due serie distinte per server, in byte con scala binaria con scala automatica MiB/GiB/TiB/PiB."
     },
     {
       "datasource": {
@@ -2068,7 +2070,7 @@
           "unit": "Mbits",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -2099,14 +2101,14 @@
           },
           "editorMode": "code",
           "expr": "sum(clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608) + sum(clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608)",
-          "legendFormat": "Totale RX + TX (Mbps)",
+          "legendFormat": "Totale RX + TX",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Network Traffic Totale - Attuale (RX + TX, Mbps)",
+      "title": "Network Traffic Totale - Attuale (RX + TX, bit/s)",
       "type": "timeseries",
-      "description": "Velocita' RX + TX dei server visualizzati, in Mbps (media mobile su 5 minuti)."
+      "description": "Velocità complessiva RX + TX dei server visualizzati (media mobile su 5 minuti); bit/s (SI) con scala automatica kbps/Mbps/Gbps."
     },
     {
       "datasource": {
@@ -2167,7 +2169,7 @@
           "unit": "bytes",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -2205,7 +2207,7 @@
       ],
       "title": "Network Traffic Totale - Cumulativo (RX + TX)",
       "type": "timeseries",
-      "description": "Traffico RX + TX cumulativo di tutti i server visualizzati, in byte. I contatori possono ripartire da zero al riavvio dei singoli server."
+      "description": "Traffico cumulativo RX + TX di tutti i server visualizzati, in byte con scala binaria (MiB/GiB/TiB/PiB). I contatori possono ripartire da zero al riavvio dei singoli server."
     },
     {
       "datasource": {
@@ -2266,7 +2268,7 @@
           "unit": "bytes",
           "unitScale": true,
           "min": 0,
-          "decimals": 2
+          "decimals": 1
         },
         "overrides": []
       },
@@ -2304,7 +2306,7 @@
       ],
       "title": "Network Traffic Totale - Storico assoluto (RX + TX)",
       "type": "timeseries",
-      "description": "Traffico complessivo RX + TX da quando la contabilizzazione persistente è attiva. Il totale non si azzera al riavvio del server o dell'exporter, purché il file di stato sia conservato. Lo storico visibile dipende dalla retention di Prometheus."
+      "description": "Traffico complessivo RX + TX da quando la contabilizzazione persistente è attiva, in byte con scala binaria (MiB/GiB/TiB/PiB). Il totale non si azzera al riavvio del server o dell'exporter, purché il file di stato sia conservato. Lo storico visibile dipende dalla retention di Prometheus."
     },
     {
       "collapsed": false,
