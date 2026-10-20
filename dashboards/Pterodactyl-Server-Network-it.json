@@ -196,12 +196,9 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
+      "description": "Tabella nativa Grafana: uptime attuale e riavvii stimati dai cali dell'uptime nell'intervallo della dashboard. L'ultimo riavvio non è disponibile se il server è offline. Non richiede il plugin Scalbox.",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
-          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -212,10 +209,150 @@
               }
             ]
           },
-          "unit": "ms",
-          "unitScale": true
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 330
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uptime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.width",
+                "value": 130
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Offline",
+                        "color": "red"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last reboot"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "custom.width",
+                "value": 175
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Non disponibile"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Restarts"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Notes"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 190
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Offline",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "Online",
+                        "color": "green"
+                      },
+                      "2": {
+                        "text": "Offline · reset rilevato",
+                        "color": "orange"
+                      },
+                      "3": {
+                        "text": "Riavviato nell'intervallo",
+                        "color": "orange"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 12,
@@ -223,11 +360,16 @@
         "x": 12,
         "y": 1
       },
-      "id": 22,
+      "id": 48,
       "options": {
-        "language": "it"
+        "showHeader": true,
+        "cellHeight": "md",
+        "minColumnWidth": 100,
+        "footer": {
+          "show": false
+        }
       },
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "10.3.1",
       "targets": [
         {
           "datasource": {
@@ -235,15 +377,136 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
+          "exemplar": false,
           "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
-          "interval": "",
-          "legendFormat": "{{server_name}} ({{id}})",
-          "range": true,
-          "refId": "A"
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A",
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(timestamp(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * 1000 - pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * (pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0)",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B",
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range])",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C",
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0) + 2 * (resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range]) > bool 0)",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "D",
+          "format": "table"
         }
       ],
-      "title": "Uptime e Riavvii",
-      "type": "scalbox-uptime-panel"
+      "title": "Uptime - Riepilogo (senza plugin)",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "id",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "server_name": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #A": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #B": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #C": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "Value #D": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "id": true
+            },
+            "indexByName": {
+              "server_name (lastNotNull)": 0,
+              "Value #A (lastNotNull)": 1,
+              "Value #B (lastNotNull)": 2,
+              "Value #C (lastNotNull)": 3,
+              "Value #D (lastNotNull)": 4
+            },
+            "renameByName": {
+              "server_name (lastNotNull)": "Server",
+              "Value #A (lastNotNull)": "Uptime",
+              "Value #B (lastNotNull)": "Last reboot",
+              "Value #C (lastNotNull)": "Restarts",
+              "Value #D (lastNotNull)": "Notes"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -458,12 +721,80 @@
       "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
     },
     {
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "h": 1,
+        "w": 24
+      },
+      "id": 50,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "green",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "ms",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 29,
+            "w": 24,
+            "h": 12
+          },
+          "id": 22,
+          "options": {
+            "language": "it"
+          },
+          "pluginVersion": "1.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
+              "interval": "",
+              "legendFormat": "{{server_name}} ({{id}})",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Uptime e Riavvii",
+          "type": "scalbox-uptime-panel"
+        }
+      ],
+      "title": "Uptime avanzato (plugin opzionale)",
+      "type": "row"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 16,
       "panels": [],
@@ -535,7 +866,7 @@
         "h": 15,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 30
       },
       "id": 6,
       "options": {
@@ -640,7 +971,7 @@
         "h": 15,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 30
       },
       "id": 4,
       "options": {
@@ -685,7 +1016,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 45
       },
       "id": 18,
       "panels": [],
@@ -757,7 +1088,7 @@
         "h": 15,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 10,
       "options": {
@@ -862,7 +1193,7 @@
         "h": 15,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 46
       },
       "id": 8,
       "options": {
@@ -907,7 +1238,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 61
       },
       "id": 20,
       "panels": [],
@@ -979,7 +1310,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 61,
+        "y": 62,
         "w": 12,
         "h": 15
       },
@@ -1086,7 +1417,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 61,
+        "y": 62,
         "w": 12,
         "h": 15
       },
@@ -1193,7 +1524,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 76,
+        "y": 77,
         "w": 24,
         "h": 8
       },
@@ -1303,7 +1634,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 85,
         "w": 12,
         "h": 15
       },
@@ -1410,7 +1741,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 84,
+        "y": 85,
         "w": 12,
         "h": 15
       },
@@ -1517,7 +1848,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 99,
+        "y": 100,
         "w": 24,
         "h": 8
       },
@@ -1627,7 +1958,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 107,
+        "y": 108,
         "w": 24,
         "h": 8
       },
@@ -1726,7 +2057,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 115,
+        "y": 116,
         "w": 24,
         "h": 8
       },
@@ -1825,7 +2156,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 123,
+        "y": 124,
         "w": 24,
         "h": 8
       },
@@ -1865,7 +2196,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 131
+        "y": 132
       },
       "id": 26,
       "panels": [],
@@ -2110,7 +2441,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 132
+        "y": 133
       },
       "id": 28,
       "options": {
