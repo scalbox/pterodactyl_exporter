@@ -4,6 +4,13 @@ Frontend-only panel plugin for the English and Italian dashboards included in
 [scalbox/pterodactyl_exporter](https://github.com/scalbox/pterodactyl_exporter).
 The plugin source is in `src/`, and the ready-built files are in `dist/`.
 
+**This plugin is optional.** The English and Italian dashboard JSON files
+work with standard Grafana panels even when this plugin is not installed.
+A built-in uptime **Table** panel shows Server, Uptime, Last reboot, Restarts,
+and Notes. After installing this plugin, expand the collapsed **Advanced uptime
+(optional plugin)** / **Uptime avanzato (plugin opzionale)** row for the
+interactive graphical alternative. No extra screenshot has been added yet.
+
 ## Compile manually
 
 Requires **Node.js 22 LTS** and npm. From the `grafana-plugin/` directory,
