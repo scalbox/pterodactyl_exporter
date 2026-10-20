@@ -26,6 +26,12 @@ other monitoring software to be installed on Pterodactyl nodes.
   - [What you need](#what-you-need)
   - [Run as Pterodactyl Server](#run-as-pterodactyl-server)
   - [Run as service](#run-as-service)
+- [How to update](#how-to-update)
+  - [Virtual environment and systemd](#virtual-environment-and-systemd)
+  - [pipx installation](#pipx-installation)
+  - [Pterodactyl Egg installation](#pterodactyl-egg-installation)
+  - [Docker Compose installation](#docker-compose-installation)
+  - [Manual source checkout](#manual-source-checkout)
 - [Server inclusion and exclusion](#server-inclusion-and-exclusion)
 - [Metrics](#metrics)
   - [Original metrics](#original-metrics-loens2-upstream)
@@ -132,6 +138,100 @@ WantedBy=multi-user.target
  - To use the dashboards bundled with this fork, see [Grafana dashboards](#grafana-dashboards). The original upstream Grafana dashboard is also available under ID `16575`.
  
  #### Servers can be selected by changing API permissions or with the UUID filters documented below.
+
+## How to update
+
+Use a **published Git tag** for production (see [Releases](https://github.com/scalbox/pterodactyl_exporter/releases)); use `main` only when you intentionally want the latest, potentially unreleased changes. In the commands below, change `RELEASE_REF` to the **new release tag** you want to install. The value `1.0.12` is only an example, not an automatically updated version selector.
+
+Updating the Python package does **not** overwrite your existing `config.yml` files or systemd units. Check the new release notes for configuration changes before restarting.
+
+### Virtual environment and systemd
+
+This applies to installations such as `/opt/pterodactyl-exporter/venv`, including setups with several `pterodactyl-exporter@INSTANCE.service` instances using different YAML files.
+
+**1. Check the installed version and discover the service names:**
+
+```bash
+/opt/pterodactyl-exporter/venv/bin/python -m pip show pterodactyl_exporter
+systemctl list-units --all --type=service 'pterodactyl-exporter@*.service'
+```
+
+**2. Upgrade the package inside the existing virtual environment:**
+
+```bash
+RELEASE_REF="1.0.12"  # Replace with the desired newer tag (or "main" for unreleased changes)
+sudo /opt/pterodactyl-exporter/venv/bin/python -m pip install --upgrade --no-cache-dir \
+  "git+https://github.com/scalbox/pterodactyl_exporter.git@${RELEASE_REF}"
+```
+
+Do not create another virtual environment or reinstall the systemd services. This command upgrades the Python code shared by all instances using that virtual environment.
+
+**3. Only after the installation succeeds, restart each existing instance:**
+
+```bash
+sudo systemctl restart pterodactyl-exporter@INSTANCE.service
+```
+
+Replace `INSTANCE` with each instance name shown in step 1. Repeat the command for every instance sharing the virtual environment. The existing `/etc/pterodactyl-exporter/INSTANCE.yml` configuration files are retained.
+
+**4. Verify the installed version and service logs:**
+
+```bash
+/opt/pterodactyl-exporter/venv/bin/python -m pip show pterodactyl_exporter
+sudo systemctl status pterodactyl-exporter@INSTANCE.service --no-pager
+sudo journalctl -u pterodactyl-exporter@INSTANCE.service -n 50 --no-pager
+```
+
+If you installed into a different virtual environment, use its `bin/python` path instead. If your unit has a different name, substitute the exact name returned by `systemctl`.
+
+### pipx installation
+
+For installations originally managed by `pipx` (not the virtual environment above), use the **same Linux user** that owns the pipx installation:
+
+```bash
+RELEASE_REF="1.0.12"  # Replace with the desired newer tag
+pipx list
+pipx install --upgrade "git+https://github.com/scalbox/pterodactyl_exporter.git@${RELEASE_REF}"
+pipx list
+```
+
+If the exporter is managed by systemd, restart its service after the upgrade. Do not use `pipx` to update installations located in `/opt/pterodactyl-exporter/venv`.
+
+### Pterodactyl Egg installation
+
+1. Download the latest [Egg JSON](egg/egg-pterodactyl-exporter.json) and update/import the egg in your Pterodactyl Panel.
+2. Review the existing server's startup command and egg variables; updating an egg does not necessarily propagate every change to servers already created from it.
+3. Back up the server's `config.yml` and any other data before using **Reinstall** in the Panel. Reinstalling reruns the egg's installer, which installs the Scalbox fork from GitHub `main`.
+4. Confirm the values for `LISTEN_ADDRESS`, `INCLUDE_SERVERS` and `EXCLUDE_SERVERS`, then start the server and inspect its console.
+
+The egg installer preserves an existing `config.yml`, but a Pterodactyl reinstall can affect other files depending on your Panel setup. This is why a backup is recommended.
+
+### Docker Compose installation
+
+The supplied [Docker Compose file](docker/docker-compose.yml) uses a versioned GHCR image. To upgrade:
+
+1. Edit its `image: ghcr.io/scalbox/pterodactyl_exporter:VERSION` to the **new published release tag** (or `:latest` if you intentionally track the latest release).
+2. Pull and recreate the container:
+
+```bash
+docker compose -f docker/docker-compose.yml pull
+docker compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml ps
+```
+
+The bind-mounted `config.yml` remains on the host. These commands use the same Compose file and do not require reinstalling Docker.
+
+### Manual source checkout
+
+For a source checkout installed in editable mode (development/testing), update the repository and its Python package:
+
+```bash
+cd pterodactyl_exporter
+git pull --ff-only
+python -m pip install --upgrade -e .
+```
+
+Restart the exporter process afterwards. Use a tagged release and a virtual environment for production rather than relying on an unpinned development checkout.
 
 ## Server inclusion and exclusion
 
