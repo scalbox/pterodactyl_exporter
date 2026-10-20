@@ -143,7 +143,30 @@
           "unit": "percent",
           "unitScale": true
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^Limite:/"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    6,
+                    6
+                  ]
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -154,8 +177,122 @@
       "id": 2,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"}",
+          "legendFormat": "Utilizzo: {{server_name}} ({{id}})",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0",
+          "legendFormat": "Limite: {{server_name}} ({{id}})",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "CPU usage / limite",
+      "type": "timeseries",
+      "description": "Utilizzo CPU assoluto e limite configurato in Pterodactyl: ad esempio 240% di utilizzo su 400% disponibili. 100% equivale a un core. I limiti illimitati (0) non vengono disegnati."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true,
+          "min": 0,
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 44,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
           "placement": "right",
           "showLegend": true
         },
@@ -171,14 +308,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"}",
+          "expr": "100 * pterodactyl_server_cpu_absolute{server_name=~\"$server\"} / on (server_name, id) clamp_min(pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"}, 1) and on (server_name, id) (pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0)",
           "legendFormat": "Server: {{server_name}}, ID: {{id}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU usage",
-      "type": "timeseries"
+      "title": "CPU usage percent",
+      "type": "timeseries",
+      "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
     },
     {
       "datasource": {
@@ -210,7 +348,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 1
+        "y": 7
       },
       "id": 22,
       "options": {
@@ -313,10 +451,10 @@
         "overrides": []
       },
       "gridPos": {
+        "h": 6,
+        "w": 12,
         "x": 0,
-        "y": 7,
-        "w": 24,
-        "h": 6
+        "y": 7
       },
       "id": 42,
       "options": {
@@ -1719,13 +1857,13 @@
                   {
                     "type": "value",
                     "options": {
-                      "-1": {
-                        "text": "∞",
-                        "color": "blue"
-                      },
                       "0": {
                         "text": "Disabilitati",
                         "color": "red"
+                      },
+                      "-1": {
+                        "text": "∞",
+                        "color": "blue"
                       }
                     }
                   }
