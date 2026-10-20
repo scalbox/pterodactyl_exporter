@@ -1,4 +1,4 @@
-# Scalbox Uptime & Restart Monitor (Grafana panel)
+# Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)
 
 Frontend-only panel plugin for the English and Italian dashboards included in
 [scalbox/pterodactyl_exporter](https://github.com/scalbox/pterodactyl_exporter).
@@ -47,31 +47,31 @@ These commands assume the default Grafana plugin directory and service account.
 1. Create the installation directory:
 
    ```bash
-   sudo install -d -m 755 /var/lib/grafana/plugins/scalbox-uptime-panel
+   sudo install -d -m 755 /var/lib/grafana/plugins/scalbox-pterodactyl-uptime
    ```
 
 2. Copy the **contents** of `dist/`:
 
    ```bash
-   sudo cp -a dist/. /var/lib/grafana/plugins/scalbox-uptime-panel/
+   sudo cp -a dist/. /var/lib/grafana/plugins/scalbox-pterodactyl-uptime/
    ```
 
 3. Assign the files to the Grafana user and group:
 
    ```bash
-   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
+   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-pterodactyl-uptime
    ```
 
 4. Set permissions on directories (`755`):
 
    ```bash
-   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type d -exec chmod 755 {} +
+   sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type d -exec chmod 755 {} +
    ```
 
 5. Set permissions on files (`644`):
 
    ```bash
-   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type f -exec chmod 644 {} +
+   sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type f -exec chmod 644 {} +
    ```
 
 6. Open Grafana's configuration:
@@ -84,7 +84,7 @@ These commands assume the default Grafana plugin directory and service account.
 
    ```ini
    [plugins]
-   allow_loading_unsigned_plugins = scalbox-uptime-panel
+   allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime
    ```
 
 7. Restart Grafana:
