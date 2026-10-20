@@ -2354,183 +2354,12 @@
       "description": "Traffico cumulativo Totale, RX e TX di tutti i server selezionati dall'ultimo azzeramento dei contatori dei server, in byte IEC (MiB/GiB/TiB) a scala automatica. RX e TX possono azzerarsi al riavvio."
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes",
-          "unitScale": true,
-          "min": 0,
-          "decimals": 1
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Totale (RX + TX)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#F59E0B"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 3
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RX"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#22C55E"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "TX"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#38BDF8"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 124,
-        "w": 24,
-        "h": 8
-      },
-      "id": 46,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_total_mebibyte{server_name=~\"$server\"})) * 1048576",
-          "legendFormat": "Totale (RX + TX)",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_rx_mebibyte{server_name=~\"$server\"})) * 1048576",
-          "legendFormat": "RX",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_tx_mebibyte{server_name=~\"$server\"})) * 1048576",
-          "legendFormat": "TX",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Network Traffic - Storico assoluto",
-      "type": "timeseries",
-      "description": "Traffico storico persistente Totale, RX e TX di tutti i server selezionati, in byte IEC. Dopo la migrazione da una vecchia versione dell'exporter, il Totale conserva traffico precedente non suddivisibile: RX/TX iniziano dall'aggiornamento, quindi Totale può superare RX + TX. Conservare il file di stato; lo storico visibile dipende dalla retention Prometheus."
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 132
+        "y": 124
       },
       "id": 26,
       "panels": [],
@@ -2775,7 +2604,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 133
+        "y": 125
       },
       "id": 28,
       "options": {

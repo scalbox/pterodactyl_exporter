@@ -13,8 +13,7 @@ Feel free to try this script and submit an issue if needed.
 This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pterodactyl_exporter).
 Scalbox added full-UUID server inclusion/exclusion filters and **new Prometheus
 metrics** ([see the complete list](#metrics-added-by-scalbox-in-this-fork)).
-This fork also introduces persistent RX/TX network accounting, customized
-English/Italian Grafana dashboards with a built-in uptime table and an
+This fork also includes customized English/Italian Grafana dashboards with a built-in uptime table and an
 **optional Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
 and the Docker/GHCR automated release workflow. The existing upstream metric
 names and labels are preserved.
@@ -38,7 +37,6 @@ other monitoring software to be installed on Pterodactyl nodes.
     - [Automatic plugin installation (Linux)](#automatic-installation-from-a-github-release-linux-grafana-115)
     - [Manual ZIP installation](#manual-installation-from-a-zip)
     - [Compile the plugin](#compile-manually-from-source)
-  - [Persistent network traffic totals](#persistent-network-traffic-totals)
 - [Run with Docker](#run-with-docker-starting-with-109)
   - [Automated releases](#automated-docker-and-python-releases)
 - [Run manually](#run-manually)
@@ -93,7 +91,6 @@ server_list_type: owner
 query_interval: 10 # Interval in seconds between each query to the Pterodactyl panel (default: 10)
 include_servers: [] # Optional full-UUID allowlist (empty = all accessible servers)
 exclude_servers: [] # Optional full-UUID blocklist
-# traffic_state_file: data/network_traffic.json # Persistent RX+TX state (relative to config.yml)
  ```
 
  The `listen_address` setting controls which interface serves `/metrics` (`127.0.0.1` for local-only access, `0.0.0.0` for all interfaces). If omitted, it defaults to `0.0.0.0`. It is separate from `host` and `host_port`, which refer to the Pterodactyl panel. Restart the exporter after changing the setting.
@@ -193,9 +190,6 @@ includes the complete `uuid` label.
 | `pterodactyl_server_backup_count` | Gauge | Number of currently stored server backups. |
 | `pterodactyl_server_backup_limit` | Gauge | Maximum number of backup slots configured for the server; `NaN` when unavailable. |
 | `pterodactyl_server_identity_info` | Gauge | Constant value `1`, with the full server UUID in the `uuid` label. |
-| `pterodactyl_server_network_historical_total_mebibyte` | Gauge | Persistent historical RX + TX total in MiB, maintained across game-server and exporter restarts when the state file is preserved. Includes unattributed legacy traffic after migration from state version 1. |
-| `pterodactyl_server_network_historical_rx_mebibyte` | Gauge | Persistent received traffic in MiB; tracked from the first observation on new installations or from the version 1 state migration on upgrades. |
-| `pterodactyl_server_network_historical_tx_mebibyte` | Gauge | Persistent transmitted traffic in MiB; tracked from the first observation on new installations or from the version 1 state migration on upgrades. |
 
 These are the complete **Pterodactyl application metrics** defined by the
 exporter. The Prometheus Python client may also expose standard Python runtime
@@ -213,9 +207,6 @@ For example, Prometheus exposes data in this form:
 pterodactyl_server_backup_count{server_name="Production",id="11111111"} 5
 pterodactyl_server_backup_limit{server_name="Production",id="11111111"} 6
 pterodactyl_server_identity_info{server_name="Production",id="11111111",uuid="11111111-1111-4111-8111-111111111111"} 1
-pterodactyl_server_network_historical_total_mebibyte{server_name="Production",id="11111111"} 15360
-pterodactyl_server_network_historical_rx_mebibyte{server_name="Production",id="11111111"} 10240
-pterodactyl_server_network_historical_tx_mebibyte{server_name="Production",id="11111111"} 5120
 ```
 
 The UUID is intentionally provided in a separate information metric, so the
@@ -671,63 +662,11 @@ The dashboards include:
 - CPU and memory usage, disk usage, current uptime, and historical uptime.
 - Per-server network RX and TX charts for cumulative traffic and current
   throughput in automatically scaled bits/s (kbps/Mbps/Gbps).
-- Three total-network charts (Current, Cumulative and Lifetime) with three
-  colored series each: Total (RX + TX), RX and TX. Data volumes use automatically
-  scaled IEC bytes (MiB/GiB/TiB/PiB); the current-speed chart uses SI bits/s.
-- Persistent Lifetime traffic accounting across game-server and exporter restarts
-  when the state file is retained.
+- Two total-network charts (Current and Cumulative) with three colored series
+  each: Total (RX + TX), RX and TX. Data volumes use automatically scaled IEC
+  bytes (MiB/GiB/TiB/PiB); the current-speed chart uses SI bits/s.
 - A per-server backup table with the latest backup, stored backup count, backup
   limit, usage indicator, panel name, and complete server UUID.
-
-### Persistent network traffic totals
-
-**Added by Scalbox in this fork.** The persistent network counter and its
-Grafana history panel extend the original exporter's restart-resetting RX/TX
-metrics.
-
-The Lifetime network panel uses
-`pterodactyl_server_network_historical_total_mebibyte`,
-`pterodactyl_server_network_historical_rx_mebibyte` and
-`pterodactyl_server_network_historical_tx_mebibyte`. Current and Cumulative
-panels use the existing per-boot RX/TX metrics. Each chart displays three
-series: **Total (RX + TX)**, **RX** and **TX**, with matching colors in both
-English and Italian dashboards. **Update/restart the exporter as well as
-importing the JSON**; older exporter versions do not expose Lifetime RX/TX.
-
-Pterodactyl's RX/TX values restart at zero with a game server. The exporter
-tracks positive increments for each server's UUID, detects resets in each
-direction and writes the combined and separately attributed RX/TX totals to a
-JSON state file after each successful collection cycle. The default path is `data/network_traffic.json`
-**relative to the directory containing `config.yml`**. You may set the
-optional `traffic_state_file` configuration key to an absolute path or a
-different relative path. The exporter must have write access to the directory.
-
-**Keep and back up this file.** If it is deleted or stored only in an
-ephemeral container layer, the historical totals will restart from the currently
-reported server counters. The provided Docker Compose file mounts
-`../data:/opt/pterodactyl_exporter/config/data`; retain this volume when
-updating or recreating the container. Pterodactyl Egg installations should
-also retain the `data/` directory alongside their `config.yml`.
-
-**Upgrading an existing installation:** The exporter automatically migrates
-version 1 `network_traffic.json` files to version 2 on its next successful
-save. The previously accumulated **Total** is preserved exactly as unattributed
-legacy traffic, while the new persistent **RX** and **TX** counters start at
-zero and count only subsequent observed traffic. Consequently, after a migration
-**Lifetime Total may be greater than Lifetime RX + TX**: the difference is the
-original unsplit historical total, not missing data. On a new version 2
-installation, Total equals RX + TX. The old RX/TX split cannot be recovered
-accurately from a combined value. **Back up the state file before upgrading**;
-older exporter releases cannot read the new version 2 state format, so a
-rollback requires restoring that backup.
-
-The lifetime counters begin when an exporter first observes each new server.
-On first observation, they include the RX/TX amounts reported for the server's
-*current boot*; earlier restarts cannot be backfilled from live counters.
-Traffic transferred between the last successful exporter poll and an
-unobserved reset may also be missed. With the state file preserved, totals
-do not decrease as observed counters reset. The time range available in
-Grafana still depends on Prometheus data retention.
 
 To import either version, open **Grafana > Dashboards > New > Import**, upload
 the desired JSON file, select your **Prometheus** data source, and import it.
@@ -761,7 +700,6 @@ cd pterodactyl_exporter
 curl -fsSL -o config.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/config.example.yml
 curl -fsSL -o docker/docker-compose.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/docker/docker-compose.yml
 # Edit config.yml before starting the exporter.
-# Compose mounts ../data into the container to keep network traffic totals.
 docker compose -f docker/docker-compose.yml pull
 docker compose -f docker/docker-compose.yml up -d
 ```

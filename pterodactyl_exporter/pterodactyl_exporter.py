@@ -2,7 +2,6 @@ import argparse
 import http.client
 import time
 import datetime
-from pathlib import Path
 from .config_load import get_config
 from .http_client import HTTPClient
 from .http_server import HTTPServer
@@ -35,13 +34,6 @@ def main():
     except ValueError as e:
         log_to_console("Config Error:", True, True, e)
         raise SystemExit
-
-    # Keep the state in a writable location next to the configuration.
-    # Resolve explicitly so it also works for Docker and systemd services.
-    state_path = Path(config.traffic_state_file or "data/network_traffic.json")
-    if not state_path.is_absolute():
-        state_path = Path(config_path).resolve().parent / state_path
-    config.traffic_state_file = str(state_path)
 
     http_client = HTTPClient(config)
     http_server = HTTPServer(config)

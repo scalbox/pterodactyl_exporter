@@ -17,7 +17,6 @@ class Config(Validation):
     query_interval: int = field(default=10)
     include_servers: List[str] = field(default_factory=list)
     exclude_servers: List[str] = field(default_factory=list)
-    traffic_state_file: str | None = field(default=None)
 
     @staticmethod
     def _validate_uuid_list(value, field_name):
@@ -85,14 +84,6 @@ class Config(Validation):
         if False is isinstance(value, bool):
             raise ValueError("ignore_ssl: Please use a boolean value")
         return value
-
-    @staticmethod
-    def validate_traffic_state_file(value, **_) -> str | None:
-        if value is None:
-            return None
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("traffic_state_file: Please use a non-empty path")
-        return value.strip()
 
     @staticmethod
     def validate_query_interval(value, **_) -> int:

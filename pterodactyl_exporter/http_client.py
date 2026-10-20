@@ -3,14 +3,12 @@ import time
 import dateutil.parser
 from .dto.config import Config
 from .dto.metrics import Metrics
-from .network_traffic_store import NetworkTrafficStore
 
 
 class HTTPClient:
     def __init__(self, config: Config):
         self.config = config
         self.metrics: Metrics = Metrics()
-        self.network_traffic_store = NetworkTrafficStore(config.traffic_state_file)
         self.headers = {
             "Authorization": f"Bearer {config.api_key}",
             "Content-Type": "application/json",
@@ -49,19 +47,8 @@ class HTTPClient:
             page = server_pages[server_id]
             resources = self.fetch_resources(server_id, index, page)
             self.process_resources(resources)
-            historical_total = self.network_traffic_store.update(
-                self.metrics.uuid[index], self.metrics.rx[index], self.metrics.tx[index]
-            )
-            historical_rx, historical_tx = self.network_traffic_store.get_direction_totals(
-                self.metrics.uuid[index]
-            )
-            self.metrics.network_total_historical.append(historical_total)
-            self.metrics.network_rx_historical.append(historical_rx)
-            self.metrics.network_tx_historical.append(historical_tx)
             self.fetch_last_backup_time(server_id, index, page)
 
-        # Only publish values after the durable state has been saved.
-        self.network_traffic_store.save()
         t2 = time.time()
         print(f"total= {t2 - t1}")
         return self.metrics
