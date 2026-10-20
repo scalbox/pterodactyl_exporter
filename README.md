@@ -15,7 +15,7 @@ Scalbox added full-UUID server inclusion/exclusion filters and **new Prometheus
 metrics** ([see the complete list](#metrics-added-by-scalbox-in-this-fork)).
 This fork also introduces persistent RX/TX network accounting, customized
 English/Italian Grafana dashboards with a built-in uptime table and an
-**optional Grafana Uptime & Restart Monitor panel plugin** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
+**optional Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
 and the Docker/GHCR automated release workflow. The existing upstream metric
 names and labels are preserved.
 
@@ -254,7 +254,7 @@ layout. Only the user-facing labels, descriptions, legends, and backup-table
 messages differ by language.
 
 **The Grafana plugin is optional.** Both dashboard JSON files work **with or
-without** `scalbox-uptime-panel`: beside the uptime history chart, a built-in **Table** panel shows one row
+without** `scalbox-pterodactyl-uptime`: beside the uptime history chart, a built-in **Table** panel shows one row
 per server with **Server, Uptime, Last reboot, Restarts and Notes**. Names can be inspected in the native
 Grafana table, and the table scrolls when more servers are present.
 
@@ -273,8 +273,7 @@ settings. No screenshot of the new table is included yet.
 
 ### Grafana uptime and restart panel plugin
 
-**Added by Scalbox in this fork.** The **Scalbox Uptime & Restart
-Monitor** plugin is **not required** to use either dashboard. The native table
+**Added by Scalbox in this fork.** The **Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)** plugin is **not required** to use either dashboard. The native table
 provides the basic uptime and restart information, while the plugin offers a
 **different, more interactive way to visualize server uptime**.
 
@@ -332,9 +331,15 @@ The **source code** is in
 is committed in [`grafana-plugin/dist/`](grafana-plugin/dist/).
 Every new version tag published through the GitHub Actions release workflow
 also builds/tests the plugin and adds the installable asset
-`scalbox-uptime-panel-X.Y.Z.zip` to the
+`scalbox-pterodactyl-uptime-X.Y.Z.zip` to the
 [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 page alongside the Python packages.
+
+**Plugin ID update:** use a release created after the plugin was renamed.
+Older release ZIP files have a different plugin ID and folder name, and are
+not compatible with the new configuration examples below. When upgrading an
+existing installation, remove the previously installed plugin directory,
+install the new release ZIP, and reimport the updated dashboard JSON files.
 
 #### Automatic installation from a GitHub Release (Linux, Grafana 11.5+)
 
@@ -353,13 +358,13 @@ when Grafana starts. No local Node.js build or manual extraction is needed.
 
    ```ini
    [plugins]
-   allow_loading_unsigned_plugins = scalbox-uptime-panel
-   preinstall = scalbox-uptime-panel@X.Y.Z@https://github.com/scalbox/pterodactyl_exporter/releases/download/X.Y.Z/scalbox-uptime-panel-X.Y.Z.zip
+   allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime
+   preinstall = scalbox-pterodactyl-uptime@X.Y.Z@https://github.com/scalbox/pterodactyl_exporter/releases/download/X.Y.Z/scalbox-pterodactyl-uptime-X.Y.Z.zip
    ```
 
    Replace **all three** `X.Y.Z` occurrences with the **same** release tag
    (for example, `1.0.13`). Choose a release that actually contains the
-   `scalbox-uptime-panel-X.Y.Z.zip` asset. The Grafana host must be able to
+   `scalbox-pterodactyl-uptime-X.Y.Z.zip` asset. The Grafana host must be able to
    reach GitHub and follow its ZIP download redirects. If other plugins are
    already listed in `preinstall`, preserve them and append this entry with
    a comma.
@@ -398,7 +403,7 @@ Grafana's CLI with `--pluginUrl`). This is a server-side installation:
 #### Manual installation from a ZIP
 
 Follow these steps on a standard **Linux installation of Grafana**. The ZIP
-already contains the required `scalbox-uptime-panel/` directory. You need
+already contains the required `scalbox-pterodactyl-uptime/` directory. You need
 `curl` and `unzip` installed. Use a release that includes the plugin ZIP.
 
 1. **Choose a published version** (replace `X.Y.Z`):
@@ -410,7 +415,7 @@ already contains the required `scalbox-uptime-panel/` directory. You need
 2. **Download the compiled plugin** from GitHub Releases:
 
    ```bash
-   curl -fL -o "scalbox-uptime-panel-$PLUGIN_VERSION.zip" "https://github.com/scalbox/pterodactyl_exporter/releases/download/$PLUGIN_VERSION/scalbox-uptime-panel-$PLUGIN_VERSION.zip"
+   curl -fL -o "scalbox-pterodactyl-uptime-$PLUGIN_VERSION.zip" "https://github.com/scalbox/pterodactyl_exporter/releases/download/$PLUGIN_VERSION/scalbox-pterodactyl-uptime-$PLUGIN_VERSION.zip"
    ```
 
 3. **Create Grafana's plugin directory** if needed:
@@ -422,7 +427,7 @@ already contains the required `scalbox-uptime-panel/` directory. You need
 4. **Extract the plugin**, keeping the directory name supplied in the ZIP:
 
    ```bash
-   sudo unzip "scalbox-uptime-panel-$PLUGIN_VERSION.zip" -d /var/lib/grafana/plugins/
+   sudo unzip "scalbox-pterodactyl-uptime-$PLUGIN_VERSION.zip" -d /var/lib/grafana/plugins/
    ```
 
    If an older copy is already installed, `unzip` may ask whether to
@@ -431,20 +436,20 @@ already contains the required `scalbox-uptime-panel/` directory. You need
 5. **Assign ownership to Grafana's service account**:
 
    ```bash
-   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
+   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-pterodactyl-uptime
    ```
 
 6. **Grant directory permissions** (`755`: read/traverse access):
 
    ```bash
-   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type d -exec chmod 755 {} +
+   sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type d -exec chmod 755 {} +
    ```
 
 7. **Grant file permissions** (`644`: Grafana can read the JavaScript,
    metadata and images; executable permission is unnecessary):
 
    ```bash
-   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type f -exec chmod 644 {} +
+   sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type f -exec chmod 644 {} +
    ```
 
 8. **Allow this specific unsigned plugin.** Edit Grafana's configuration:
@@ -457,7 +462,7 @@ already contains the required `scalbox-uptime-panel/` directory. You need
 
    ```ini
    [plugins]
-   allow_loading_unsigned_plugins = scalbox-uptime-panel
+   allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime
    ```
 
    This permits only the named custom plugin, not all unsigned plugins.
@@ -485,8 +490,8 @@ default plugin path `/var/lib/grafana/plugins/`. Adjust both for a customized
 Grafana service or plugin directory. Do **not** use `chmod 777`.
 
 **Grafana running in Docker/Compose:** mount the extracted plugin directory
-inside the container at `/var/lib/grafana/plugins/scalbox-uptime-panel/` and
-set `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=scalbox-uptime-panel`. File
+inside the container at `/var/lib/grafana/plugins/scalbox-pterodactyl-uptime/` and
+set `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=scalbox-pterodactyl-uptime`. File
 ownership must be readable by the Grafana user **inside the container**.
 The plugin runs only in Grafana; no daemon is added to Pterodactyl game servers.
 
@@ -544,31 +549,31 @@ Linux-specific installation commands below differ.
 7. **Create the Grafana plugin directory**:
 
    ```bash
-   sudo install -d -m 755 /var/lib/grafana/plugins/scalbox-uptime-panel
+   sudo install -d -m 755 /var/lib/grafana/plugins/scalbox-pterodactyl-uptime
    ```
 
 8. **Copy the compiled files (the contents of `dist/`)**:
 
    ```bash
-   sudo cp -a dist/. /var/lib/grafana/plugins/scalbox-uptime-panel/
+   sudo cp -a dist/. /var/lib/grafana/plugins/scalbox-pterodactyl-uptime/
    ```
 
 9. **Set the owner and group**:
 
    ```bash
-   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
+   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-pterodactyl-uptime
    ```
 
 10. **Set directory permissions**:
 
     ```bash
-    sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type d -exec chmod 755 {} +
+    sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type d -exec chmod 755 {} +
     ```
 
 11. **Set file permissions**:
 
     ```bash
-    sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type f -exec chmod 644 {} +
+    sudo find /var/lib/grafana/plugins/scalbox-pterodactyl-uptime -type f -exec chmod 644 {} +
     ```
 
 12. **Open Grafana's configuration file**:
@@ -578,7 +583,7 @@ Linux-specific installation commands below differ.
     ```
 
     In the existing `[plugins]` section add
-    `allow_loading_unsigned_plugins = scalbox-uptime-panel`, as shown in
+    `allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime`, as shown in
     [manual installation](#manual-installation-from-a-zip).
 
 13. **Restart Grafana**:
