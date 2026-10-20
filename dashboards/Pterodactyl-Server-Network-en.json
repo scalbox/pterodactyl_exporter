@@ -40,6 +40,12 @@
       "id": "timeseries",
       "name": "Time series",
       "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
     }
   ],
   "annotations": {
@@ -196,7 +202,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Native Grafana table: current uptime and restarts estimated from decreases in uptime over the selected dashboard range. Last reboot is unavailable while a server is offline. No Scalbox plugin required.",
+      "description": "One row per server; horizontally displayed Uptime gauge with automatic scaling. A visible status legend appears below and in this info tooltip. Hover over the Notes cell tooltip indicator (Grafana 12.2+) for details. 'Restarted in range' means at least one uptime reset detected in the selected time window; restarts are estimates from Prometheus samples, not system events.",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -223,7 +229,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 330
+                "value": 315
               }
             ]
           },
@@ -239,7 +245,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 130
+                "value": 175
               },
               {
                 "id": "mappings",
@@ -258,7 +264,25 @@
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-text"
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
+                  ]
                 }
               }
             ]
@@ -316,7 +340,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 190
+                "value": 185
               },
               {
                 "id": "custom.cellOptions",
@@ -349,13 +373,59 @@
                     }
                   }
                 ]
+              },
+              {
+                "id": "custom.tooltip.field",
+                "value": "Notes details"
+              },
+              {
+                "id": "custom.tooltip.placement",
+                "value": "auto"
+              },
+              {
+                "id": "description",
+                "value": "See status legend below the table. Hover over the Notes cell for detailed status explanation on Grafana 12.2+."
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Notes details"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OFFLINE: server is stopped (uptime 0). No reset detected within the selected time range."
+                      },
+                      "1": {
+                        "text": "ONLINE: server is running. No uptime reset detected within the selected time range."
+                      },
+                      "2": {
+                        "text": "OFFLINE + RESET: server is currently stopped, but at least one uptime decrease or reset was detected within the selected time range."
+                      },
+                      "3": {
+                        "text": "RESTARTED IN RANGE: server is online now; at least one uptime reset was detected in the selected Grafana period (e.g., last 24 hours). This is an estimate; restarts between scrapes can be missed."
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 12,
+        "h": 10,
         "w": 12,
         "x": 12,
         "y": 1
@@ -378,7 +448,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
+          "expr": "max by (id, server_name) (pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"})",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -392,7 +462,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(timestamp(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * 1000 - pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * (pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0)",
+          "expr": "max by (id) ((timestamp(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * 1000 - pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}) * (pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -406,7 +476,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range])",
+          "expr": "sum by (id) (resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range]))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -420,11 +490,25 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0) + 2 * (resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range]) > bool 0)",
+          "expr": "max by (id) ((pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0) + 2 * (resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range]) > bool 0))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
           "refId": "D",
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max by (id) ((pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"} > bool 0) + 2 * (resets(pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}[$__range]) > bool 0))",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "E",
           "format": "table"
         }
       ],
@@ -435,47 +519,6 @@
           "options": {
             "byField": "id",
             "mode": "outerTabular"
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "id": {
-                "operation": "groupby",
-                "aggregations": []
-              },
-              "server_name": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "Value #A": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "Value #B": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "Value #C": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "Value #D": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              }
-            }
           }
         },
         {
@@ -490,23 +533,41 @@
               "id": true
             },
             "indexByName": {
-              "server_name (lastNotNull)": 0,
-              "Value #A (lastNotNull)": 1,
-              "Value #B (lastNotNull)": 2,
-              "Value #C (lastNotNull)": 3,
-              "Value #D (lastNotNull)": 4
+              "server_name": 0,
+              "Value #A": 1,
+              "Value #B": 2,
+              "Value #C": 3,
+              "Value #D": 4,
+              "Value #E": 5
             },
             "renameByName": {
-              "server_name (lastNotNull)": "Server",
-              "Value #A (lastNotNull)": "Uptime",
-              "Value #B (lastNotNull)": "Last reboot",
-              "Value #C (lastNotNull)": "Restarts",
-              "Value #D (lastNotNull)": "Notes"
+              "server_name": "Server",
+              "Value #A": "Uptime",
+              "Value #B": "Last reboot",
+              "Value #C": "Restarts",
+              "Value #D": "Notes",
+              "Value #E": "Notes details"
             }
           }
         }
       ],
       "type": "table"
+    },
+    {
+      "id": 51,
+      "type": "text",
+      "title": "",
+      "transparent": true,
+      "gridPos": {
+        "x": 12,
+        "y": 11,
+        "w": 12,
+        "h": 2
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Notes legend:** 🟢 **Online** = running · 🔴 **Offline** = stopped  \n🟠 **Restarted in range** = reset in selected period · 🟠 **Offline · reset detected** = stopped now, reset in period"
+      }
     },
     {
       "datasource": {
