@@ -143,30 +143,7 @@
           "unit": "percent",
           "unitScale": true
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^Limite:/"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    6,
-                    6
-                  ]
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -196,26 +173,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"}",
-          "legendFormat": "Utilizzo: {{server_name}} ({{id}})",
+          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"illimitato\", \"cpu_limit\", \"^0%$\") > bool 0)",
+          "legendFormat": "{{server_name}} ({{id}}) · Limite {{cpu_limit}}",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0",
-          "legendFormat": "Limite: {{server_name}} ({{id}})",
-          "range": true,
-          "refId": "B"
         }
       ],
       "title": "CPU usage / limite",
       "type": "timeseries",
-      "description": "Utilizzo CPU assoluto e limite configurato in Pterodactyl: ad esempio 240% di utilizzo su 400% disponibili. 100% equivale a un core. I limiti illimitati (0) non vengono disegnati."
+      "description": "Una sola curva per server: la colonna Last mostra la CPU usata in percentuale assoluta (es. 240%), mentre nella stessa riga della legenda compare il limite configurato (es. 500%). Il limite è fissato al valore alla fine dell'intervallo; 0 significa illimitato."
     },
     {
       "datasource": {

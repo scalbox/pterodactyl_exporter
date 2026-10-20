@@ -143,30 +143,7 @@
           "unit": "percent",
           "unitScale": true
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^Limit:/"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    6,
-                    6
-                  ]
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -196,26 +173,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"}",
-          "legendFormat": "Usage: {{server_name}} ({{id}})",
+          "expr": "pterodactyl_server_cpu_absolute{server_name=~\"$server\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"unlimited\", \"cpu_limit\", \"^0%$\") > bool 0)",
+          "legendFormat": "{{server_name}} ({{id}}) · Limit {{cpu_limit}}",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "pterodactyl_server_max_cpu_absolute{server_name=~\"$server\"} > 0",
-          "legendFormat": "Limit: {{server_name}} ({{id}})",
-          "range": true,
-          "refId": "B"
         }
       ],
       "title": "CPU usage / limit",
       "type": "timeseries",
-      "description": "Absolute CPU usage and the CPU limit configured in Pterodactyl: for example, 240% usage out of a 400% limit. 100% equals one core. Unlimited limits (0) are not plotted."
+      "description": "One line per server: the Last column shows absolute CPU usage (e.g. 240%), while the legend name on that same row shows the configured CPU limit (e.g. 500%). The limit is taken at the end of the selected time range; 0 means unlimited."
     },
     {
       "datasource": {
