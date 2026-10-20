@@ -1,8 +1,8 @@
 {
   "$schema": "https://grafana.com/schemas/plugin/v2.json",
   "type": "panel",
-  "name": "Scalbox Uptime & Restart Monitor",
-  "id": "scalbox-uptime-panel",
+  "name": "Scalbox - Pterodactyl Uptime & Restart Monitor",
+  "id": "scalbox-pterodactyl-uptime",
   "info": {
     "description": "Scrollable per-server uptime timelines with restart detection, search, status filters and timezone-aware reboot dates.",
     "author": {
