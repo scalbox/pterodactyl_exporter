@@ -2072,7 +2072,57 @@
           "min": 0,
           "decimals": 1
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Totale (RX + TX)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F59E0B"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#22C55E"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#38BDF8"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "x": 0,
@@ -2089,7 +2139,7 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -2101,14 +2151,36 @@
           },
           "editorMode": "code",
           "expr": "sum(clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608) + sum(clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608)",
-          "legendFormat": "Totale RX + TX",
+          "legendFormat": "Totale (RX + TX)",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608)",
+          "legendFormat": "RX",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\"}[5m]), 0) * 8.388608)",
+          "legendFormat": "TX",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "Network Traffic Totale - Attuale (RX + TX, bit/s)",
+      "title": "Network Traffic - Attuale (bit/s)",
       "type": "timeseries",
-      "description": "Velocità complessiva RX + TX dei server visualizzati (media mobile su 5 minuti); bit/s (SI) con scala automatica kbps/Mbps/Gbps."
+      "description": "Traffico di rete Total, RX e TX di tutti i server selezionati, media degli ultimi 5 minuti (bit/s SI con scala automatica kbps/Mbps/Gbps)."
     },
     {
       "datasource": {
@@ -2171,7 +2243,57 @@
           "min": 0,
           "decimals": 1
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Totale (RX + TX)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F59E0B"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#22C55E"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#38BDF8"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "x": 0,
@@ -2188,7 +2310,7 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -2200,14 +2322,36 @@
           },
           "editorMode": "code",
           "expr": "(sum(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\"}) + sum(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\"})) * 1048576",
-          "legendFormat": "Totale cumulativo RX + TX",
+          "legendFormat": "Totale (RX + TX)",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\"}) * 1048576",
+          "legendFormat": "RX",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\"}) * 1048576",
+          "legendFormat": "TX",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "Network Traffic Totale - Cumulativo (RX + TX)",
+      "title": "Network Traffic - Cumulativo",
       "type": "timeseries",
-      "description": "Traffico cumulativo RX + TX di tutti i server visualizzati, in byte con scala binaria (MiB/GiB/TiB/PiB). I contatori possono ripartire da zero al riavvio dei singoli server."
+      "description": "Traffico cumulativo Totale, RX e TX di tutti i server selezionati dall'ultimo azzeramento dei contatori dei server, in byte IEC (MiB/GiB/TiB) a scala automatica. RX e TX possono azzerarsi al riavvio."
     },
     {
       "datasource": {
@@ -2270,7 +2414,57 @@
           "min": 0,
           "decimals": 1
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Totale (RX + TX)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F59E0B"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#22C55E"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#38BDF8"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "x": 0,
@@ -2287,7 +2481,7 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -2299,14 +2493,36 @@
           },
           "editorMode": "code",
           "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_total_mebibyte{server_name=~\"$server\"})) * 1048576",
-          "legendFormat": "Totale storico RX + TX",
+          "legendFormat": "Totale (RX + TX)",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_rx_mebibyte{server_name=~\"$server\"})) * 1048576",
+          "legendFormat": "RX",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (id, job, instance) (pterodactyl_server_network_historical_tx_mebibyte{server_name=~\"$server\"})) * 1048576",
+          "legendFormat": "TX",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "Network Traffic Totale - Storico assoluto (RX + TX)",
+      "title": "Network Traffic - Storico assoluto",
       "type": "timeseries",
-      "description": "Traffico complessivo RX + TX da quando la contabilizzazione persistente è attiva, in byte con scala binaria (MiB/GiB/TiB/PiB). Il totale non si azzera al riavvio del server o dell'exporter, purché il file di stato sia conservato. Lo storico visibile dipende dalla retention di Prometheus."
+      "description": "Traffico storico persistente Totale, RX e TX di tutti i server selezionati, in byte IEC. Dopo la migrazione da una vecchia versione dell'exporter, il Totale conserva traffico precedente non suddivisibile: RX/TX iniziano dall'aggiornamento, quindi Totale può superare RX + TX. Conservare il file di stato; lo storico visibile dipende dalla retention Prometheus."
     },
     {
       "collapsed": false,
