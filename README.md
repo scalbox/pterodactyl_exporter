@@ -334,15 +334,65 @@ server daemon or Pterodactyl modification).
 
 #### Compile manually from source
 
-Use **Node.js 22 LTS** and npm. From a clone of this repository:
+Use **Node.js 22 LTS** and npm. From the `grafana-plugin` directory
+inside a clone of this repository, on **Windows PowerShell, Linux or macOS**:
 
 ```bash
-cd grafana-plugin
-npm ci              # Install exact versions from package-lock.json
-npm run check       # Run tests, TypeScript validation, and production build
-# Or, for a build without running the tests:
+npm ci             # Install exact dependencies from package-lock.json
+npm run check      # Tests + TypeScript validation + production build
+```
+
+To compile without running tests:
+
+```bash
 npm run build
 ```
+
+The commands are identical in Windows PowerShell. Run them **inside**
+`grafana-plugin/`, not at the repository root. A successful build produces
+`dist/module.js`, `dist/plugin.json` and `dist/img/logo.svg`.
+
+**What does `scripts/copy-plugin-json.mjs` do?** It is a build helper, not an
+additional command to run manually. `npm run build` first validates the
+TypeScript code and compiles the Grafana SystemJS module with Rollup, then
+automatically runs this script. It copies `src/plugin.json` and the SVG logo
+into `dist/`. If the release workflow provides the `PLUGIN_VERSION`
+environment variable (for example `1.0.13`), the script also updates
+`dist/plugin.json` to that version so it matches the Git tag.
+The script is **source/build tooling only** and is not included in the
+installable release ZIP.
+
+**Windows / Dropbox troubleshooting:** `npm ci` deliberately removes an
+existing `node_modules/` before reinstalling packages. On Windows,
+`npm error EBUSY: resource busy or locked, rmdir ...\\node_modules\\...`
+means that another process is holding files open. If your checkout is under
+Dropbox or OneDrive, pause synchronization, close programs using the folder
+(e.g. IDEs and terminals running Node), then retry `npm ci`.
+If the folder continues to be locked, build from a local non-synchronized copy.
+In **PowerShell**, starting from the original `grafana-plugin` folder:
+
+```powershell
+$buildDir = Join-Path $env:LOCALAPPDATA 'Scalbox\grafana-plugin-build'
+New-Item -ItemType Directory -Path $buildDir -Force | Out-Null
+robocopy . $buildDir /E /XD node_modules
+Set-Location $buildDir
+npm ci
+npm run check
+```
+
+The compiled plugin will then be in `$buildDir\dist`. This copies the
+current source files, including any local edits, but excludes the locked
+`node_modules/` directory. Avoid running npm commands in two terminals at
+once. Do not delete or replace `package-lock.json` to work around EBUSY.
+
+**Warnings versus errors:** `npm warn ERESOLVE` and deprecation notices
+from transitive Grafana 10.3.1 development dependencies are warnings, not
+build failures. If `npm ci` finishes with `added ... packages`, continue
+with `npm run check`. `npm audit` can report issues in the development
+toolchain even though these packages are not bundled into the compiled
+plugin; use `npm audit --omit=dev` to separately inspect production
+dependencies. Do **not** run `npm audit fix --force` without reviewing
+the proposed dependency and compatibility changes.
 
 The compiled files are generated in `grafana-plugin/dist/`, including
 `plugin.json` and the Grafana-compatible `module.js`. To install a build
