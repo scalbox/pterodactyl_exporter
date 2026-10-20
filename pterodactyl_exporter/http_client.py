@@ -49,11 +49,15 @@ class HTTPClient:
             page = server_pages[server_id]
             resources = self.fetch_resources(server_id, index, page)
             self.process_resources(resources)
-            self.metrics.network_total_historical.append(
-                self.network_traffic_store.update(
-                    self.metrics.uuid[index], self.metrics.rx[index], self.metrics.tx[index]
-                )
+            historical_total = self.network_traffic_store.update(
+                self.metrics.uuid[index], self.metrics.rx[index], self.metrics.tx[index]
             )
+            historical_rx, historical_tx = self.network_traffic_store.get_direction_totals(
+                self.metrics.uuid[index]
+            )
+            self.metrics.network_total_historical.append(historical_total)
+            self.metrics.network_rx_historical.append(historical_rx)
+            self.metrics.network_tx_historical.append(historical_tx)
             self.fetch_last_backup_time(server_id, index, page)
 
         # Only publish values after the durable state has been saved.
