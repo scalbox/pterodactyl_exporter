@@ -223,6 +223,8 @@ class TestHTTPClient(unittest.TestCase):
         self.assertEqual(metrics.disk, [2, 4])
         self.assertEqual(metrics.uptime, [12345, 67890])
         self.assertEqual(metrics.network_total_historical, [1.0, 2.0])
+        self.assertEqual(metrics.network_rx_historical, [0.5, 1.0])
+        self.assertEqual(metrics.network_tx_historical, [0.5, 1.0])
         self.assertEqual(len(metrics.last_backup_time), 2)
         self.assertEqual(metrics.backup_count, [5.0, 7.0])
         self.assertEqual(metrics.backup_limit, [6.0, 10.0])
