@@ -13,8 +13,9 @@ Feel free to try this script and submit an issue if needed.
 This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pterodactyl_exporter).
 Scalbox added full-UUID server inclusion/exclusion filters, backup counts and
 quotas, complete server UUID metadata, and a persistent network traffic total
-that survives game-server and exporter restarts. The existing upstream metric
-names and labels are preserved.
+that survives game-server and exporter restarts. Scalbox also added the
+English/Italian Grafana dashboards and the fork's Docker/GHCR release workflow.
+The existing upstream metric names and labels are preserved.
 
 The exporter uses the Pterodactyl Client API. It does **not** require an exporter or
 other monitoring software to be installed on Pterodactyl nodes.
@@ -186,6 +187,7 @@ For example, Prometheus exposes data in this form:
 pterodactyl_server_backup_count{server_name="Production",id="11111111"} 5
 pterodactyl_server_backup_limit{server_name="Production",id="11111111"} 6
 pterodactyl_server_identity_info{server_name="Production",id="11111111",uuid="11111111-1111-4111-8111-111111111111"} 1
+pterodactyl_server_network_historical_total_mebibyte{server_name="Production",id="11111111"} 15360
 ```
 
 The UUID is intentionally provided in a separate information metric, so the
@@ -196,6 +198,9 @@ patching script against this version; it was only intended for the unmodified
 upstream package.
 
 ## Grafana dashboards
+
+**Added by Scalbox in this fork.** These customized English and Italian
+Grafana dashboards are developed and maintained by Scalbox.
 
 This fork includes two language versions of the **Pterodacty l Server & Network**
 Grafana dashboard in the [`dashboards/`](dashboards/) directory:
@@ -235,6 +240,10 @@ The dashboards include:
   limit, usage indicator, panel name, and complete server UUID.
 
 ### Persistent network traffic totals
+
+**Added by Scalbox in this fork.** The persistent network counter and its
+Grafana history panel extend the original exporter's restart-resetting RX/TX
+metrics.
 
 The new historical network panel uses
 `pterodactyl_server_network_historical_total_mebibyte`, introduced in the
@@ -279,6 +288,9 @@ different folders or choose distinct dashboard names during import.
  
 ## Run with Docker (starting with 1.0.9)
 
+**Added by Scalbox in this fork.** The fork's prebuilt multi-platform Docker
+images are distributed through GitHub Container Registry (GHCR).
+
 Starting with **1.0.9**, release images are published from this fork to GitHub
 Container Registry (GHCR). The Compose file uses the pinned image
 `ghcr.io/scalbox/pterodactyl_exporter:1.0.11` and does not use the upstream
@@ -308,6 +320,9 @@ port; `listen_address: 127.0.0.1` inside the container would prevent the
 published Docker port from reaching the exporter.
 
 ### Automated Docker and Python releases
+
+**Added by Scalbox in this fork.** The automated release pipeline publishes
+Docker images and Python packages for each tagged version.
 
 The [release workflow](.github/workflows/publish-docker.yml) runs whenever a
 stable version Git tag such as `1.0.11` is pushed. It:
