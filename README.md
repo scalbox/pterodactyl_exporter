@@ -294,8 +294,13 @@ page alongside the Python packages.
 from the ZIP published in [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 when Grafana starts. No local Node.js build or manual extraction is needed.
 
-1. Open `/etc/grafana/grafana.ini` as administrator and **edit the existing**
-   `[plugins]` section (do not create a duplicate). Add:
+1. **Open Grafana's configuration file**:
+
+   ```bash
+   sudo nano /etc/grafana/grafana.ini
+   ```
+
+   Edit the existing `[plugins]` section (do not create a duplicate). Add:
 
    ```ini
    [plugins]
@@ -310,11 +315,16 @@ when Grafana starts. No local Node.js build or manual extraction is needed.
    already listed in `preinstall`, preserve them and append this entry with
    a comma.
 
-2. Apply the configuration:
+2. **Restart Grafana**:
 
    ```bash
    sudo systemctl restart grafana-server
-   sudo journalctl -u grafana-server -b --no-pager | tail -n 80
+   ```
+
+   **Inspect the logs** if installation fails:
+
+   ```bash
+   sudo journalctl -u grafana-server -b --no-pager -n 80
    ```
 
    After installation finishes, check **Administration > Plugins and data >
@@ -338,70 +348,201 @@ Grafana's CLI with `--pluginUrl`). This is a server-side installation:
 
 #### Manual installation from a ZIP
 
-On a standard Linux Grafana installation:
+Follow these steps on a standard **Linux installation of Grafana**. The ZIP
+already contains the required `scalbox-uptime-panel/` directory. You need
+`curl` and `unzip` installed. Use a release that includes the plugin ZIP.
 
-1. Download `scalbox-uptime-panel-X.Y.Z.zip` from a release **created after
-   this plugin was added**. Replace `X.Y.Z` with the tag version.
-2. Extract it into Grafana's plugin folder (the ZIP already contains a directory
-   named `scalbox-uptime-panel`):
+1. **Choose a published version** (replace `X.Y.Z`):
 
    ```bash
-   sudo unzip scalbox-uptime-panel-X.Y.Z.zip -d /var/lib/grafana/plugins/
+   PLUGIN_VERSION="X.Y.Z"
+   ```
+
+2. **Download the compiled plugin** from GitHub Releases:
+
+   ```bash
+   curl -fL -o "scalbox-uptime-panel-$PLUGIN_VERSION.zip" "https://github.com/scalbox/pterodactyl_exporter/releases/download/$PLUGIN_VERSION/scalbox-uptime-panel-$PLUGIN_VERSION.zip"
+   ```
+
+3. **Create Grafana's plugin directory** if needed:
+
+   ```bash
+   sudo install -d -m 755 /var/lib/grafana/plugins
+   ```
+
+4. **Extract the plugin**, keeping the directory name supplied in the ZIP:
+
+   ```bash
+   sudo unzip "scalbox-uptime-panel-$PLUGIN_VERSION.zip" -d /var/lib/grafana/plugins/
+   ```
+
+   If an older copy is already installed, `unzip` may ask whether to
+   overwrite existing files. Back up any local modifications before upgrading.
+
+5. **Assign ownership to Grafana's service account**:
+
+   ```bash
    sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
    ```
 
-3. **Allow this specific unsigned plugin.** It has not been submitted for
-   official Grafana signing. Grafana normally rejects unsigned plugins.
-   In `/etc/grafana/grafana.ini`, under `[plugins]`:
+6. **Grant directory permissions** (`755`: read/traverse access):
+
+   ```bash
+   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type d -exec chmod 755 {} +
+   ```
+
+7. **Grant file permissions** (`644`: Grafana can read the JavaScript,
+   metadata and images; executable permission is unnecessary):
+
+   ```bash
+   sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type f -exec chmod 644 {} +
+   ```
+
+8. **Allow this specific unsigned plugin.** Edit Grafana's configuration:
+
+   ```bash
+   sudo nano /etc/grafana/grafana.ini
+   ```
+
+   In the existing `[plugins]` section (do not add a duplicate), set:
 
    ```ini
    [plugins]
    allow_loading_unsigned_plugins = scalbox-uptime-panel
    ```
 
-   Or, for Grafana running via Docker/Compose, set:
+   This permits only the named custom plugin, not all unsigned plugins.
+   Only use an unsigned plugin if you trust/review its source.
 
-   ```yaml
-   environment:
-     GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: scalbox-uptime-panel
+9. **Restart Grafana** to load the plugin:
+
+   ```bash
+   sudo systemctl restart grafana-server
    ```
 
-   Only enable an unsigned plugin after reviewing/trusting its source.
-   An unmodified plugin distributed with this fork uses ID
-   `scalbox-uptime-panel`; **do not disable signature verification globally**.
+10. **Check the logs** if the plugin is missing or fails to load:
 
-4. Restart Grafana (for example, `sudo systemctl restart grafana-server`)
-   and import the [Italian](dashboards/Pterodactyl-Server-Network-it.json) or
-   [English](dashboards/Pterodactyl-Server-Network-en.json) dashboard.
-   Make sure your Grafana instance is connected to the Prometheus exporter.
-   The dashboard shows a missing-plugin message until this plugin is installed
-   and Grafana has restarted.
+    ```bash
+    sudo journalctl -u grafana-server -b --no-pager -n 80
+    ```
 
-For Grafana in Docker, mount the extracted
-`scalbox-uptime-panel/` folder at
-`/var/lib/grafana/plugins/scalbox-uptime-panel/` inside the container and
-apply the same environment variable. The plugin is frontend-only (no extra
-server daemon or Pterodactyl modification).
+11. **Open Grafana**, check **Administration > Plugins and data > Plugins**,
+    then import the [Italian](dashboards/Pterodactyl-Server-Network-it.json) or
+    [English](dashboards/Pterodactyl-Server-Network-en.json) dashboard. Ensure
+    that the Prometheus datasource can query the exporter.
+
+These commands assume Grafana runs as user/group `grafana:grafana` and uses the
+default plugin path `/var/lib/grafana/plugins/`. Adjust both for a customized
+Grafana service or plugin directory. Do **not** use `chmod 777`.
+
+**Grafana running in Docker/Compose:** mount the extracted plugin directory
+inside the container at `/var/lib/grafana/plugins/scalbox-uptime-panel/` and
+set `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=scalbox-uptime-panel`. File
+ownership must be readable by the Grafana user **inside the container**.
+The plugin runs only in Grafana; no daemon is added to Pterodactyl game servers.
 
 #### Compile manually from source
 
-Use **Node.js 22 LTS** and npm. From the `grafana-plugin` directory
-inside a clone of this repository, on **Windows PowerShell, Linux or macOS**:
+Use **Node.js 22 LTS** and npm. On Linux, perform **each step in order**.
+On Windows PowerShell or macOS, the npm commands are the same; only the
+Linux-specific installation commands below differ.
 
-```bash
-npm ci             # Install exact dependencies from package-lock.json
-npm run check      # Tests + TypeScript validation + production build
-```
+1. **Verify Node.js and npm**:
 
-To compile without running tests:
+   ```bash
+   node --version
+   ```
 
-```bash
-npm run build
-```
+   ```bash
+   npm --version
+   ```
 
-The commands are identical in Windows PowerShell. Run them **inside**
-`grafana-plugin/`, not at the repository root. A successful build produces
-`dist/module.js`, `dist/plugin.json` and `dist/img/logo.svg`.
+2. **Clone the repository** if you do not already have a local checkout:
+
+   ```bash
+   git clone https://github.com/scalbox/pterodactyl_exporter.git
+   ```
+
+3. **Open the plugin's source directory**:
+
+   ```bash
+   cd pterodactyl_exporter/grafana-plugin
+   ```
+
+   If the repository is already cloned, run `cd` from its parent directory
+   or navigate directly to the existing `grafana-plugin/` folder.
+
+4. **Install the exact locked dependencies**:
+
+   ```bash
+   npm ci
+   ```
+
+5. **Run tests, validate TypeScript and compile the plugin**:
+
+   ```bash
+   npm run check
+   ```
+
+   To compile without running the tests, use `npm run build` instead.
+
+6. **Verify the generated files**:
+
+   ```bash
+   ls -l dist/module.js dist/plugin.json dist/img/logo.svg
+   ```
+
+7. **Create the Grafana plugin directory**:
+
+   ```bash
+   sudo install -d -m 755 /var/lib/grafana/plugins/scalbox-uptime-panel
+   ```
+
+8. **Copy the compiled files (the contents of `dist/`)**:
+
+   ```bash
+   sudo cp -a dist/. /var/lib/grafana/plugins/scalbox-uptime-panel/
+   ```
+
+9. **Set the owner and group**:
+
+   ```bash
+   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
+   ```
+
+10. **Set directory permissions**:
+
+    ```bash
+    sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type d -exec chmod 755 {} +
+    ```
+
+11. **Set file permissions**:
+
+    ```bash
+    sudo find /var/lib/grafana/plugins/scalbox-uptime-panel -type f -exec chmod 644 {} +
+    ```
+
+12. **Open Grafana's configuration file**:
+
+    ```bash
+    sudo nano /etc/grafana/grafana.ini
+    ```
+
+    In the existing `[plugins]` section add
+    `allow_loading_unsigned_plugins = scalbox-uptime-panel`, as shown in
+    [manual installation](#manual-installation-from-a-zip).
+
+13. **Restart Grafana**:
+
+    ```bash
+    sudo systemctl restart grafana-server
+    ```
+
+    If needed, inspect the service logs:
+
+    ```bash
+    sudo journalctl -u grafana-server -b --no-pager -n 80
+    ```
 
 **What does `scripts/copy-plugin-json.mjs` do?** It is a build helper, not an
 additional command to run manually. `npm run build` first validates the
@@ -444,12 +585,6 @@ toolchain even though these packages are not bundled into the compiled
 plugin; use `npm audit --omit=dev` to separately inspect production
 dependencies. Do **not** run `npm audit fix --force` without reviewing
 the proposed dependency and compatibility changes.
-
-The compiled files are generated in `grafana-plugin/dist/`, including
-`plugin.json` and the Grafana-compatible `module.js`. To install a build
-directly from the repository, copy the **contents** of `dist/` to
-`/var/lib/grafana/plugins/scalbox-uptime-panel/`, enable the unsigned plugin
-as above and restart Grafana.
 
 The release workflow is in
 [`.github/workflows/publish-docker.yml`](.github/workflows/publish-docker.yml):
