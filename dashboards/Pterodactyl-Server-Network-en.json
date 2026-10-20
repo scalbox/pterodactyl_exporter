@@ -148,7 +148,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 0,
         "y": 1
@@ -156,10 +156,18 @@
       "id": 42,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -210,7 +218,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 12,
         "y": 1
@@ -314,20 +322,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 0,
-        "y": 7
+        "y": 16
       },
       "id": 2,
       "options": {
         "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "showLegend": true,
           "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "multi",
@@ -415,20 +429,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 12,
-        "y": 7
+        "y": 16
       },
       "id": 44,
       "options": {
         "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "showLegend": true,
           "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -458,7 +478,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 31
       },
       "id": 16,
       "panels": [],
@@ -527,18 +547,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 32
       },
       "id": 4,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -623,18 +651,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 32
       },
       "id": 6,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -654,7 +690,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory usage mebibytes",
+      "title": "Memory usage (MiB)",
       "type": "timeseries"
     },
     {
@@ -663,7 +699,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 47
       },
       "id": 18,
       "panels": [],
@@ -732,18 +768,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 48
       },
       "id": 8,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -828,18 +872,26 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 15,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 48
       },
       "id": 10,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -859,7 +911,7 @@
           "refId": "A"
         }
       ],
-      "title": "Disk usage mebibytes",
+      "title": "Disk usage (MiB)",
       "type": "timeseries"
     },
     {
@@ -868,7 +920,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 63
       },
       "id": 20,
       "panels": [],
@@ -940,17 +992,25 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 64,
         "w": 12,
-        "h": 6
+        "h": 15
       },
       "id": 30,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -1039,17 +1099,25 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 28,
+        "y": 64,
         "w": 12,
-        "h": 6
+        "h": 15
       },
       "id": 32,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -1138,7 +1206,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 34,
+        "y": 79,
         "w": 24,
         "h": 6
       },
@@ -1248,17 +1316,25 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 85,
         "w": 12,
-        "h": 6
+        "h": 15
       },
       "id": 12,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -1347,17 +1423,25 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 40,
+        "y": 85,
         "w": 12,
-        "h": 6
+        "h": 15
       },
       "id": 24,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true,
+          "maxHeight": "180px"
         },
         "tooltip": {
           "mode": "single",
@@ -1446,7 +1530,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 46,
+        "y": 100,
         "w": 24,
         "h": 6
       },
@@ -1556,7 +1640,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 52,
+        "y": 106,
         "w": 24,
         "h": 6
       },
@@ -1655,7 +1739,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 58,
+        "y": 112,
         "w": 24,
         "h": 6
       },
@@ -1695,7 +1779,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 118
       },
       "id": 26,
       "panels": [],
@@ -1940,7 +2024,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 119
       },
       "id": 28,
       "options": {
