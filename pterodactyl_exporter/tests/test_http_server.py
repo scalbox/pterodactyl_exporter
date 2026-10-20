@@ -38,6 +38,9 @@ class TestHTTPServer(unittest.TestCase):
             "disk": MagicMock(),
             "rx": MagicMock(),
             "tx": MagicMock(),
+            "network_total_historical": MagicMock(),
+            "network_rx_historical": MagicMock(),
+            "network_tx_historical": MagicMock(),
             "uptime": MagicMock(),
             "max_memory": MagicMock(),
             "max_swap": MagicMock(),
@@ -59,6 +62,8 @@ class TestHTTPServer(unittest.TestCase):
             rx=[100, 200],
             tx=[150, 250],
             network_total_historical=[250, 450],
+            network_rx_historical=[100, 200],
+            network_tx_historical=[150, 250],
             uptime=[3600000, 7200000],
             max_memory=[4096, 8192],
             max_swap=[2048, 4096],
@@ -76,6 +81,16 @@ class TestHTTPServer(unittest.TestCase):
             call("Server1", "id1", "11111111-1111-4111-8111-111111111111"),
             call("Server2", "id2", "22222222-2222-4222-8222-222222222222")
         ])
+        for name, first, second in (
+            ("network_total_historical", 250, 450),
+            ("network_rx_historical", 100, 200),
+            ("network_tx_historical", 150, 250),
+        ):
+            gauge = http_server.metric_gauges[name]
+            gauge.labels.assert_any_call("Server1", "id1")
+            gauge.labels.assert_any_call("Server2", "id2")
+            gauge.labels.return_value.set.assert_any_call(first)
+            gauge.labels.return_value.set.assert_any_call(second)
         http_server.metric_gauges['backup_count'].labels.assert_any_call('Server1', 'id1')
         http_server.metric_gauges['backup_limit'].labels.assert_any_call('Server2', 'id2')
 
