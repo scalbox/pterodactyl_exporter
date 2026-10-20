@@ -12,9 +12,14 @@ Frontend-only panel plugin for the English and Italian dashboards included in
   `PLUGIN_VERSION` is specified. **Do not run the copy script manually.**
   On Windows, if npm reports `EBUSY` in a Dropbox/OneDrive checkout,
   follow the PowerShell instructions in the [root README](../README.md#compile-manually-from-source).
-- **Install:** copy `dist/` contents to
-  `/var/lib/grafana/plugins/scalbox-uptime-panel/`, permit unsigned plugin
-  `scalbox-uptime-panel` and restart Grafana.
+- **Automatic Linux install (Grafana 11.5+):** configure Grafana's
+  `[plugins] preinstall` setting with the versioned ZIP URL from
+  [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases).
+  Also allow the specific unsigned plugin ID `scalbox-uptime-panel`.
+  See the [exact Linux configuration and upgrade steps](../README.md#automatic-installation-from-a-github-release-linux-grafana-115).
+- **Manual install:** copy `dist/` contents to
+  `/var/lib/grafana/plugins/scalbox-uptime-panel/`, allow this unsigned plugin
+  ID, and restart Grafana.
 
 The full [plugin explanation and installation instructions](../README.md#grafana-uptime-and-restart-panel-plugin)
 include Docker, releases, timezone support and limitations of uptime-based
