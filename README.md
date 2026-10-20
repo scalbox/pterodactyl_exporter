@@ -66,6 +66,7 @@ server_list_type: owner
 query_interval: 10 # Interval in seconds between each query to the Pterodactyl panel (default: 10)
 include_servers: [] # Optional full-UUID allowlist (empty = all accessible servers)
 exclude_servers: [] # Optional full-UUID blocklist
+# traffic_state_file: data/network_traffic.json # Persistent RX+TX state (relative to config.yml)
  ```
 
  The `listen_address` setting controls which interface serves `/metrics` (`127.0.0.1` for local-only access, `0.0.0.0` for all interfaces). If omitted, it defaults to `0.0.0.0`. It is separate from `host` and `host_port`, which refer to the Pterodactyl panel. Restart the exporter after changing the setting.
@@ -140,6 +141,7 @@ network, uptime, and most-recent-backup metrics:
 | `pterodactyl_server_backup_count` | Gauge | Number of stored backups for the server. |
 | `pterodactyl_server_backup_limit` | Gauge | Maximum backup slots configured for the server. |
 | `pterodactyl_server_identity_info` | Gauge | Constant `1`, with the complete UUID in the `uuid` label. |
+| `pterodactyl_server_network_historical_total_mebibyte` | Gauge | Persistent RX + TX total per server in MiB, including detected counter resets. |
 
 The backup metrics use data returned by the existing server-list and backup-list
 requests. Backup counts use the API's pagination total when available; backup
@@ -196,8 +198,40 @@ The dashboards include:
 - CPU and memory usage, disk usage, current uptime, and historical uptime.
 - Per-server network RX and TX charts for both cumulative traffic and current
   throughput in Mbps, including combined RX/TX views and overall totals.
+- A persistent, all-time RX + TX total directly below the current cumulative
+  network total, independent of Pterodactyl server restart resets.
 - A per-server backup table with the latest backup, stored backup count, backup
   limit, usage indicator, panel name, and complete server UUID.
+
+### Persistent network traffic totals
+
+The new historical network panel uses
+`pterodactyl_server_network_historical_total_mebibyte`, introduced in the
+exporter alongside the updated dashboards. **Update/restart the exporter as
+well as importing the JSON**; older exporter versions will leave this panel empty.
+
+Pterodactyl's RX/TX values restart at zero with a game server. The exporter
+now tracks positive increments for each server's UUID, detects resets in each
+direction and writes the cumulative total to a JSON state file after each
+successful collection cycle. The default path is `data/network_traffic.json`
+**relative to the directory containing `config.yml`**. You may set the
+optional `traffic_state_file` configuration key to an absolute path or a
+different relative path. The exporter must have write access to the directory.
+
+**Keep and back up this file.** If it is deleted or stored only in an
+ephemeral container layer, the historical total will restart from the currently
+reported server counters. The provided Docker Compose file mounts
+`../data:/opt/pterodactyl_exporter/config/data`; retain this volume when
+updating or recreating the container. Pterodactyl Egg installations should
+also retain the `data/` directory alongside their `config.yml`.
+
+The lifetime total begins when the updated exporter first observes a server.
+On first observation, it includes the RX/TX amounts reported for that server's
+*current boot*; older restarts cannot be backfilled from a live counter.
+Traffic transmitted between the last successful exporter poll and an
+unobserved reset may also be missed. With the state file preserved, the
+reported total does not decrease as observed counters reset. The time range
+available in Grafana still depends on Prometheus data retention.
 
 To import either version, open **Grafana > Dashboards > New > Import**, upload
 the desired JSON file, select your **Prometheus** data source, and import it.
@@ -228,6 +262,7 @@ cd pterodactyl_exporter
 curl -fsSL -o config.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/config.example.yml
 curl -fsSL -o docker/docker-compose.yml https://raw.githubusercontent.com/scalbox/pterodactyl_exporter/main/docker/docker-compose.yml
 # Edit config.yml before starting the exporter.
+# Compose mounts ../data into the container to keep network traffic totals.
 docker compose -f docker/docker-compose.yml pull
 docker compose -f docker/docker-compose.yml up -d
 ```

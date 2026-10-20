@@ -58,6 +58,7 @@ class TestHTTPServer(unittest.TestCase):
             disk=[512, 1024],
             rx=[100, 200],
             tx=[150, 250],
+            network_total_historical=[250, 450],
             uptime=[3600000, 7200000],
             max_memory=[4096, 8192],
             max_swap=[2048, 4096],

@@ -17,6 +17,10 @@ query_interval: 10
 include_servers: []
 exclude_servers: []
 
+# File containing cumulative RX+TX totals across restarts. Relative to config.yml.
+# Default when omitted: data/network_traffic.json; preserve/back up this file.
+# traffic_state_file: data/network_traffic.json
+
 # Example: monitor only these two servers, except the second one.
 # include_servers:
 #   - "11111111-1111-4111-8111-111111111111" # Production server

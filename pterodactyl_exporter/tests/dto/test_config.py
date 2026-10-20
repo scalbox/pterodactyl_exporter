@@ -40,6 +40,12 @@ class TestConfig(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 Config.validate_include_servers(value)
 
+    def test_traffic_state_file_validation(self):
+        self.assertIsNone(Config.validate_traffic_state_file(None))
+        self.assertEqual(Config.validate_traffic_state_file("  data/state.json  "), "data/state.json")
+        with self.assertRaises(ValueError):
+            Config.validate_traffic_state_file("   ")
+
     def test_validate_port_valid(self):
         self.assertEqual(Config.validate_port(8080, field=None), 8080)
 

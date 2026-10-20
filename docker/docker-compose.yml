@@ -10,3 +10,5 @@ services:
       - "9531:9531"
     volumes:
       - ../config.yml:/opt/pterodactyl_exporter/config/config.yml:ro
+      # Persist the historical network counters when containers are recreated.
+      - ../data:/opt/pterodactyl_exporter/config/data
