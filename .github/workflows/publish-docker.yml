@@ -154,17 +154,17 @@ jobs:
           test -s grafana-plugin/dist/module.js
           test -s grafana-plugin/dist/plugin.json
           jq -e --arg version "$RELEASE_VERSION" '.info.version == $version' grafana-plugin/dist/plugin.json
-          mkdir -p release-package/scalbox-uptime-panel
-          cp -a grafana-plugin/dist/. release-package/scalbox-uptime-panel/
-          (cd release-package && zip -q -r "../scalbox-uptime-panel-${RELEASE_VERSION}.zip" scalbox-uptime-panel)
-          unzip -t "scalbox-uptime-panel-${RELEASE_VERSION}.zip"
+          mkdir -p release-package/scalbox-pterodactyl-uptime
+          cp -a grafana-plugin/dist/. release-package/scalbox-pterodactyl-uptime/
+          (cd release-package && zip -q -r "../scalbox-pterodactyl-uptime-${RELEASE_VERSION}.zip" scalbox-pterodactyl-uptime)
+          unzip -t "scalbox-pterodactyl-uptime-${RELEASE_VERSION}.zip"
 
       - name: Save installable ZIP for the release job
         if: github.event_name == 'push' || inputs.release_tag != ''
         uses: actions/upload-artifact@v7
         with:
           name: grafana-plugin-release
-          path: scalbox-uptime-panel-*.zip
+          path: scalbox-pterodactyl-uptime-*.zip
           if-no-files-found: error
           retention-days: 14
 
@@ -215,7 +215,7 @@ jobs:
           RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "dist/scalbox-uptime-panel-${RELEASE_TAG}.zip" --clobber
+            gh release upload "$RELEASE_TAG" "dist/scalbox-pterodactyl-uptime-${RELEASE_TAG}.zip" --clobber
             echo "::notice::Release $RELEASE_TAG already exists; updated only the Grafana plugin asset."
             exit 0
           fi
