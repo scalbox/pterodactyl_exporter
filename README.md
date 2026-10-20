@@ -11,11 +11,11 @@ Feel free to try this script and submit an issue if needed.
 ## Features added in this fork
 
 This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pterodactyl_exporter).
-Scalbox added full-UUID server inclusion/exclusion filters, backup counts and
-quotas, complete server UUID metadata, and a persistent network traffic total
-that survives game-server and exporter restarts. Scalbox also added the
-English/Italian Grafana dashboards and the fork's Docker/GHCR release workflow.
-The existing upstream metric names and labels are preserved.
+Scalbox added full-UUID server inclusion/exclusion filters and **new Prometheus
+metrics** ([see the complete list](#metrics-added-by-scalbox-in-this-fork)).
+This fork also introduces persistent RX/TX network accounting, customized
+English/Italian Grafana dashboards, and the Docker/GHCR automated release
+workflow. The existing upstream metric names and labels are preserved.
 
 The exporter uses the Pterodactyl Client API. It does **not** require an exporter or
 other monitoring software to be installed on Pterodactyl nodes.
