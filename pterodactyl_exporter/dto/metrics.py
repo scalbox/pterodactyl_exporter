@@ -13,6 +13,8 @@ class Metrics:
     rx: List[float] = field(default_factory=list)
     tx: List[float] = field(default_factory=list)
     network_total_historical: List[float] = field(default_factory=list)
+    network_rx_historical: List[float] = field(default_factory=list)
+    network_tx_historical: List[float] = field(default_factory=list)
     uptime: List[float] = field(default_factory=list)
     max_memory: List[float] = field(default_factory=list)
     max_swap: List[float] = field(default_factory=list)
