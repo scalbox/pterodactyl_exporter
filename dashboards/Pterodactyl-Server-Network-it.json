@@ -12,12 +12,6 @@
   "__elements": {},
   "__requires": [
     {
-      "type": "panel",
-      "id": "scalbox-pterodactyl-uptime",
-      "name": "Scalbox - Pterodactyl Uptime & Restart Monitor",
-      "version": "1.0.0"
-    },
-    {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
@@ -520,7 +514,7 @@
           "format": "table"
         }
       ],
-      "title": "Uptime - Riepilogo (senza plugin)",
+      "title": "Uptime - Riepilogo",
       "transformations": [
         {
           "id": "joinByField",
@@ -837,80 +831,12 @@
       "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
     },
     {
-      "collapsed": true,
-      "gridPos": {
-        "x": 0,
-        "y": 28,
-        "h": 1,
-        "w": 24
-      },
-      "id": 50,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "fixedColor": "green",
-                "mode": "fixed"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "ms",
-              "unitScale": true
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "x": 0,
-            "y": 29,
-            "w": 24,
-            "h": 12
-          },
-          "id": 22,
-          "options": {
-            "language": "it"
-          },
-          "pluginVersion": "1.0.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
-              "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
-              "interval": "",
-              "legendFormat": "{{server_name}} ({{id}})",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Uptime e Riavvii",
-          "type": "scalbox-pterodactyl-uptime"
-        }
-      ],
-      "title": "Uptime avanzato (plugin opzionale)",
-      "type": "row"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 28
       },
       "id": 16,
       "panels": [],
@@ -983,7 +909,7 @@
         "h": 15,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 29
       },
       "id": 6,
       "options": {
@@ -1088,7 +1014,7 @@
         "h": 15,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 29
       },
       "id": 4,
       "options": {
@@ -1133,7 +1059,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 44
       },
       "id": 18,
       "panels": [],
@@ -1206,7 +1132,7 @@
         "h": 15,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 45
       },
       "id": 10,
       "options": {
@@ -1311,7 +1237,7 @@
         "h": 15,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 45
       },
       "id": 8,
       "options": {
@@ -1356,7 +1282,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 60
       },
       "id": 20,
       "panels": [],
@@ -1428,7 +1354,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 61,
         "w": 12,
         "h": 15
       },
@@ -1535,7 +1461,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 62,
+        "y": 61,
         "w": 12,
         "h": 15
       },
@@ -1642,7 +1568,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 77,
+        "y": 76,
         "w": 24,
         "h": 8
       },
@@ -1752,7 +1678,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 85,
+        "y": 84,
         "w": 12,
         "h": 15
       },
@@ -1859,7 +1785,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 85,
+        "y": 84,
         "w": 12,
         "h": 15
       },
@@ -1966,7 +1892,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 100,
+        "y": 99,
         "w": 24,
         "h": 8
       },
@@ -2126,7 +2052,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 108,
+        "y": 107,
         "w": 24,
         "h": 8
       },
@@ -2297,7 +2223,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 116,
+        "y": 115,
         "w": 24,
         "h": 8
       },
@@ -2359,7 +2285,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 124
+        "y": 123
       },
       "id": 26,
       "panels": [],
@@ -2604,7 +2530,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 125
+        "y": 124
       },
       "id": 28,
       "options": {

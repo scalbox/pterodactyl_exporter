@@ -1,15 +1,18 @@
 # Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)
 
-Frontend-only panel plugin for the English and Italian dashboards included in
+Experimental frontend-only Grafana panel plugin developed by Scalbox for
 [scalbox/pterodactyl_exporter](https://github.com/scalbox/pterodactyl_exporter).
 The plugin source is in `src/`, and the ready-built files are in `dist/`.
 
-**This plugin is optional.** The English and Italian dashboard JSON files
-work with standard Grafana panels even when this plugin is not installed.
-A built-in uptime **Table** panel shows Server, Uptime, Last reboot, Restarts,
-and Notes. After installing this plugin, expand the collapsed **Advanced uptime
-(optional plugin)** / **Uptime avanzato (plugin opzionale)** row for the
-interactive graphical alternative. No extra screenshot has been added yet.
+> **Status: BETA — DISABLED.** This plugin is **not included or referenced** in
+> either bundled English or Italian Grafana dashboard. Both dashboards use the
+> native **Uptime - History** and **Uptime - Summary** panels (with translated
+> titles in Italian). The plugin source and compiled build are retained for
+> development and testing only; it is not currently recommended for normal use.
+>
+> Installing the plugin does **not** activate it in the supplied dashboards.
+> To evaluate the beta, manually add the `scalbox-pterodactyl-uptime` panel
+> visualization in Grafana and configure an uptime query.
 
 ## Compile manually
 
@@ -40,7 +43,10 @@ run each command in order:
 the plugin metadata and logo into `dist/` and sets the version when
 `PLUGIN_VERSION` is supplied. **Do not run it manually.**
 
-## Install a local build on Linux
+## Install a local build on Linux (beta testing only)
+
+**Not required for the bundled dashboards.** Install only if you intend to
+create a separate experimental Grafana panel manually.
 
 These commands assume the default Grafana plugin directory and service account.
 
