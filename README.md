@@ -8,11 +8,13 @@ This can be used for time series monitoring of Pterodactyl game servers and visu
 
 Feel free to try this script and submit an issue if needed.
 
-## Features added in this fork (1.0.8)
+## Features added in this fork
 
-This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pterodactyl_exporter)
-and adds optional full-UUID server filtering, backup counts and quotas, and a metric
-containing each server's complete UUID. Existing metric names and labels are preserved.
+This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pterodactyl_exporter).
+Scalbox added full-UUID server inclusion/exclusion filters, backup counts and
+quotas, complete server UUID metadata, and a persistent network traffic total
+that survives game-server and exporter restarts. The existing upstream metric
+names and labels are preserved.
 
 The exporter uses the Pterodactyl Client API. It does **not** require an exporter or
 other monitoring software to be installed on Pterodactyl nodes.
@@ -104,6 +106,9 @@ WantedBy=multi-user.target
 
 ## Server inclusion and exclusion
 
+**Added by Scalbox in this fork.** The `include_servers` and `exclude_servers`
+configuration options are not available in the original LOENS2 exporter.
+
 Set `include_servers` and/or `exclude_servers` in `config.yml` to control which
 servers are monitored. These lists contain **full server UUIDs**, not the short
 8-character identifiers displayed in some Pterodactyl views.
@@ -131,17 +136,43 @@ exclude_servers:
 For no filtering, use `include_servers: []` and `exclude_servers: []`.
 The API key must still have the appropriate Client API permissions.
 
-## Additional Prometheus metrics
+## Metrics
 
-This fork adds the following metrics alongside the existing CPU, memory, disk,
-network, uptime, and most-recent-backup metrics:
+The exporter exposes **16 Pterodactyl-specific Prometheus metrics**, all of type
+`Gauge`. The 12 upstream metrics are listed first, followed by the four metrics
+added by Scalbox in this fork. Metrics generally use the `server_name` and `id`
+labels (`id` is the short server identifier); the identity metric additionally
+includes the complete `uuid` label.
 
-| Metric | Type | Description |
-| --- | --- | --- |
-| `pterodactyl_server_backup_count` | Gauge | Number of stored backups for the server. |
-| `pterodactyl_server_backup_limit` | Gauge | Maximum backup slots configured for the server. |
-| `pterodactyl_server_identity_info` | Gauge | Constant `1`, with the complete UUID in the `uuid` label. |
-| `pterodactyl_server_network_historical_total_mebibyte` | Gauge | Persistent RX + TX total per server in MiB, including detected counter resets. |
+### Original metrics (LOENS2 upstream)
+
+| Metric | Description |
+| --- | --- |
+| `pterodactyl_server_cpu_absolute` | Current CPU usage in percent; values may exceed 100% on multicore servers. |
+| `pterodactyl_server_max_cpu_absolute` | Configured CPU limit in percent (0 = unlimited). |
+| `pterodactyl_server_memory_mebibyte` | Currently used RAM in MiB. |
+| `pterodactyl_server_max_memory_mebibyte` | Configured RAM limit in MiB (0 = unlimited). |
+| `pterodactyl_server_disk_mebibyte` | Currently used disk space in MiB. |
+| `pterodactyl_server_max_disk_mebibyte` | Configured disk limit in MiB (0 = unlimited). |
+| `pterodactyl_server_max_swap_mebibyte` | Configured swap allocation in MiB. |
+| `pterodactyl_server_io` | Configured disk I/O weight. |
+| `pterodactyl_server_network_rx_mebibyte` | Total traffic received in MiB since the latest game-server counter reset. |
+| `pterodactyl_server_network_tx_mebibyte` | Total traffic transmitted in MiB since the latest game-server counter reset. |
+| `pterodactyl_server_uptime_milliseconds` | Current server uptime in milliseconds. |
+| `pterodactyl_server_most_recent_backup_time` | Unix timestamp (seconds) of the most recent successful backup; 0 if unavailable. |
+
+### Metrics added by Scalbox in this fork
+
+| Metric | Description |
+| --- | --- |
+| `pterodactyl_server_backup_count` | Number of currently stored server backups. |
+| `pterodactyl_server_backup_limit` | Maximum number of backup slots configured for the server; `NaN` when unavailable. |
+| `pterodactyl_server_identity_info` | Constant value `1`, with the full server UUID in the `uuid` label. |
+| `pterodactyl_server_network_historical_total_mebibyte` | Persistent historical RX + TX total in MiB, maintained across game-server and exporter restarts when the state file is preserved. |
+
+These are the complete **Pterodactyl application metrics** defined by the
+exporter. The Prometheus Python client may also expose standard Python runtime
+and process metrics, depending on the installed version and platform.
 
 The backup metrics use data returned by the existing server-list and backup-list
 requests. Backup counts use the API's pagination total when available; backup
