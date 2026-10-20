@@ -147,29 +147,29 @@ includes the complete `uuid` label.
 
 ### Original metrics (LOENS2 upstream)
 
-| Metric | Description |
-| --- | --- |
-| `pterodactyl_server_cpu_absolute` | Current CPU usage in percent; values may exceed 100% on multicore servers. |
-| `pterodactyl_server_max_cpu_absolute` | Configured CPU limit in percent (0 = unlimited). |
-| `pterodactyl_server_memory_mebibyte` | Currently used RAM in MiB. |
-| `pterodactyl_server_max_memory_mebibyte` | Configured RAM limit in MiB (0 = unlimited). |
-| `pterodactyl_server_disk_mebibyte` | Currently used disk space in MiB. |
-| `pterodactyl_server_max_disk_mebibyte` | Configured disk limit in MiB (0 = unlimited). |
-| `pterodactyl_server_max_swap_mebibyte` | Configured swap allocation in MiB. |
-| `pterodactyl_server_io` | Configured disk I/O weight. |
-| `pterodactyl_server_network_rx_mebibyte` | Total traffic received in MiB since the latest game-server counter reset. |
-| `pterodactyl_server_network_tx_mebibyte` | Total traffic transmitted in MiB since the latest game-server counter reset. |
-| `pterodactyl_server_uptime_milliseconds` | Current server uptime in milliseconds. |
-| `pterodactyl_server_most_recent_backup_time` | Unix timestamp (seconds) of the most recent successful backup; 0 if unavailable. |
+| Metric | Type | Description |
+| --- | --- | --- |
+| `pterodactyl_server_cpu_absolute` | Gauge | Current CPU usage in percent; values may exceed 100% on multicore servers. |
+| `pterodactyl_server_max_cpu_absolute` | Gauge | Configured CPU limit in percent (0 = unlimited). |
+| `pterodactyl_server_memory_mebibyte` | Gauge | Currently used RAM in MiB. |
+| `pterodactyl_server_max_memory_mebibyte` | Gauge | Configured RAM limit in MiB (0 = unlimited). |
+| `pterodactyl_server_disk_mebibyte` | Gauge | Currently used disk space in MiB. |
+| `pterodactyl_server_max_disk_mebibyte` | Gauge | Configured disk limit in MiB (0 = unlimited). |
+| `pterodactyl_server_max_swap_mebibyte` | Gauge | Configured swap allocation in MiB. |
+| `pterodactyl_server_io` | Gauge | Configured disk I/O weight. |
+| `pterodactyl_server_network_rx_mebibyte` | Gauge | Total traffic received in MiB since the latest game-server counter reset. |
+| `pterodactyl_server_network_tx_mebibyte` | Gauge | Total traffic transmitted in MiB since the latest game-server counter reset. |
+| `pterodactyl_server_uptime_milliseconds` | Gauge | Current server uptime in milliseconds. |
+| `pterodactyl_server_most_recent_backup_time` | Gauge | Unix timestamp (seconds) of the most recent successful backup; 0 if unavailable. |
 
 ### Metrics added by Scalbox in this fork
 
-| Metric | Description |
-| --- | --- |
-| `pterodactyl_server_backup_count` | Number of currently stored server backups. |
-| `pterodactyl_server_backup_limit` | Maximum number of backup slots configured for the server; `NaN` when unavailable. |
-| `pterodactyl_server_identity_info` | Constant value `1`, with the full server UUID in the `uuid` label. |
-| `pterodactyl_server_network_historical_total_mebibyte` | Persistent historical RX + TX total in MiB, maintained across game-server and exporter restarts when the state file is preserved. |
+| Metric | Type | Description |
+| --- | --- | --- |
+| `pterodactyl_server_backup_count` | Gauge | Number of currently stored server backups. |
+| `pterodactyl_server_backup_limit` | Gauge | Maximum number of backup slots configured for the server; `NaN` when unavailable. |
+| `pterodactyl_server_identity_info` | Gauge | Constant value `1`, with the full server UUID in the `uuid` label. |
+| `pterodactyl_server_network_historical_total_mebibyte` | Gauge | Persistent historical RX + TX total in MiB, maintained across game-server and exporter restarts when the state file is preserved. |
 
 These are the complete **Pterodactyl application metrics** defined by the
 exporter. The Prometheus Python client may also expose standard Python runtime
