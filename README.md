@@ -14,13 +14,35 @@ This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pt
 Scalbox added full-UUID server inclusion/exclusion filters and **new Prometheus
 metrics** ([see the complete list](#metrics-added-by-scalbox-in-this-fork)).
 This fork also introduces persistent RX/TX network accounting, customized
-English/Italian Grafana dashboards, a custom **Grafana Uptime & Restart Monitor
-panel plugin** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
+English/Italian Grafana dashboards with a built-in uptime table and an
+**optional Grafana Uptime & Restart Monitor panel plugin** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
 and the Docker/GHCR automated release workflow. The existing upstream metric
 names and labels are preserved.
 
 The exporter uses the Pterodactyl Client API. It does **not** require an exporter or
 other monitoring software to be installed on Pterodactyl nodes.
+
+## Table of contents
+
+- [How to install](#how-to-install)
+  - [What you need](#what-you-need)
+  - [Run as Pterodactyl Server](#run-as-pterodactyl-server)
+  - [Run as service](#run-as-service)
+- [Server inclusion and exclusion](#server-inclusion-and-exclusion)
+- [Metrics](#metrics)
+  - [Original metrics](#original-metrics-loens2-upstream)
+  - [Metrics added by Scalbox](#metrics-added-by-scalbox-in-this-fork)
+- [Grafana dashboards](#grafana-dashboards)
+  - [Dashboard screenshots](#dashboard-screenshots)
+  - [Uptime table and optional plugin](#grafana-uptime-and-restart-panel-plugin)
+    - [Automatic plugin installation (Linux)](#automatic-installation-from-a-github-release-linux-grafana-115)
+    - [Manual ZIP installation](#manual-installation-from-a-zip)
+    - [Compile the plugin](#compile-manually-from-source)
+  - [Persistent network traffic totals](#persistent-network-traffic-totals)
+- [Run with Docker](#run-with-docker-starting-with-109)
+  - [Automated releases](#automated-docker-and-python-releases)
+- [Run manually](#run-manually)
+- [Troubleshooting](#troubleshooting)
 
 # How to install
 
@@ -231,23 +253,47 @@ Both exports contain the same panels, Prometheus queries, server selector, and
 layout. Only the user-facing labels, descriptions, legends, and backup-table
 messages differ by language.
 
+**The Grafana plugin is optional.** Both dashboard JSON files work **with or
+without** `scalbox-uptime-panel`: beside the uptime history chart, a built-in **Table** panel shows one row
+per server with **Server, Uptime, Last reboot, Restarts and Notes**. Names can be inspected in the native
+Grafana table, and the table scrolls when more servers are present.
+
+The optional **Advanced uptime (optional plugin)** / **Uptime avanzato (plugin
+opzionale)** row is **collapsed by default**. Expand it only if the custom plugin
+is installed to use the alternative graphical uptime timeline, filters and
+restart markers. Grafana does not automatically switch panel types based on
+whether a plugin is installed; the built-in table stays available in either case.
+
+**Data accuracy:** `Restarts` is an estimate of decreases in the uptime metric
+over the currently selected dashboard interval, not an authoritative restart
+log. An offline server has no reliable current reboot timestamp and shows
+`Unavailable` / `Non disponibile`. `Notes` indicates online/offline status
+and whether a reset was detected. Date/time uses Grafana's date/time display
+settings. No screenshot of the new table is included yet.
+
 ### Grafana uptime and restart panel plugin
 
-**Added by Scalbox in this fork.** The custom **Scalbox Uptime & Restart
-Monitor** panel replaces the original `Uptime` bar gauge on the right of
-`Uptime - History` / `Uptime - Storico` in **both** dashboards.
+**Added by Scalbox in this fork.** The **Scalbox Uptime & Restart
+Monitor** plugin is **not required** to use either dashboard. The native table
+provides the basic uptime and restart information, while the plugin offers a
+**different, more interactive way to visualize server uptime**.
 
-#### Why a plugin is necessary
+The custom panel is preserved inside the collapsed **Advanced uptime
+(optional plugin)** / **Uptime avanzato (plugin opzionale)** row. You may expand
+that row after installing the plugin. Without it, leave the row closed and use
+the built-in **Uptime - Summary (no plugin)** / **Uptime - Riepilogo
+(senza plugin)** table next to the uptime history chart.
 
-Grafana's standard Time series, State timeline, Bar gauge and Table panels each
-provide some of the required features, but a single standard panel cannot
-combine this specific two-line-per-server layout with all the interactive
-controls, restart markers, resizable name column and internal scrolling.
-The custom panel implements this in one view **without installing anything on
-the Pterodactyl game servers**. It runs inside Grafana and consumes the
-existing Prometheus metric `pterodactyl_server_uptime_milliseconds`.
+#### Why use the optional plugin?
 
-Features:
+Grafana's standard Table, Time series and State timeline panels cover
+individual needs, but a single built-in panel cannot combine this specific
+two-line-per-server layout with all the interactive filters, restart markers,
+resizable name column and internal scrolling. The plugin provides that
+alternative view without installing software on Pterodactyl game servers. It
+uses the same metric `pterodactyl_server_uptime_milliseconds`.
+
+Optional plugin features:
 
 - Uptime timeline per server (green = running, red = stopped, grey = missing
   samples), with orange restart markers derived from detected uptime resets.
@@ -277,6 +323,9 @@ Notes are automatically derived status messages; they are not editable.
 Past history is limited by your Prometheus retention and scrape interval.
 
 #### Download and install the compiled plugin
+
+**Optional step:** skip the entire plugin installation if you only want the
+built-in uptime table. Both dashboards remain usable without it.
 
 The **source code** is in
 [`grafana-plugin/src/`](grafana-plugin/src/), and the **ready-built plugin**
@@ -602,9 +651,10 @@ workflow.
 
 #### Grafana support
 
-The plugin targets Grafana **10.3 or newer** with a Prometheus datasource.
-It is intended for self-hosted Grafana installations where administrators can
-explicitly permit this unsigned custom plugin; managed Grafana services may
+The dashboards' built-in uptime table requires **no custom plugin** and uses
+the existing Prometheus datasource. The optional advanced plugin targets
+Grafana **10.3 or newer** and is intended for self-hosted installations where
+administrators can permit its unsigned plugin ID; managed Grafana services may
 not allow unsigned plugins.
 
 The dashboards include:
