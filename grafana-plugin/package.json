@@ -1,0 +1,25 @@
+{
+  "name": "scalbox-uptime-panel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scrollable Pterodactyl uptime and restart monitoring panel for Grafana",
+  "scripts": {
+    "build": "tsc --noEmit && rollup -c && node scripts/copy-plugin-json.mjs",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check": "npm run test && npm run build && node --test tests/render.test.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@grafana/data": "10.3.1",
+    "@grafana/runtime": "10.3.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rollup": "^4.52.0",
+    "tslib": "^2.8.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

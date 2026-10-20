@@ -13,9 +13,9 @@
   "__requires": [
     {
       "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
+      "id": "scalbox-uptime-panel",
+      "name": "Scalbox Uptime & Restart Monitor",
+      "version": "1.0.0"
     },
     {
       "type": "grafana",
@@ -225,24 +225,9 @@
       },
       "id": 22,
       "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
+        "language": "it"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "1.0.0",
       "targets": [
         {
           "datasource": {
@@ -250,15 +235,15 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_uptime_milliseconds {server_name=~\"$server\"}",
+          "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\"}",
           "interval": "",
-          "legendFormat": "Name: {{server_name}}, ID: {{id}}",
+          "legendFormat": "{{server_name}} ({{id}})",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Uptime",
-      "type": "bargauge"
+      "title": "Uptime e Riavvii",
+      "type": "scalbox-uptime-panel"
     },
     {
       "datasource": {

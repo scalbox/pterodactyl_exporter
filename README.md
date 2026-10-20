@@ -14,8 +14,10 @@ This fork is based on [LOENS2/pterodactyl_exporter](https://github.com/LOENS2/pt
 Scalbox added full-UUID server inclusion/exclusion filters and **new Prometheus
 metrics** ([see the complete list](#metrics-added-by-scalbox-in-this-fork)).
 This fork also introduces persistent RX/TX network accounting, customized
-English/Italian Grafana dashboards, and the Docker/GHCR automated release
-workflow. The existing upstream metric names and labels are preserved.
+English/Italian Grafana dashboards, a custom **Grafana Uptime & Restart Monitor
+panel plugin** ([features, installation and manual build](#grafana-uptime-and-restart-panel-plugin)),
+and the Docker/GHCR automated release workflow. The existing upstream metric
+names and labels are preserved.
 
 The exporter uses the Pterodactyl Client API. It does **not** require an exporter or
 other monitoring software to be installed on Pterodactyl nodes.
@@ -228,6 +230,139 @@ Click an image to view it at full resolution.
 Both exports contain the same panels, Prometheus queries, server selector, and
 layout. Only the user-facing labels, descriptions, legends, and backup-table
 messages differ by language.
+
+### Grafana uptime and restart panel plugin
+
+**Added by Scalbox in this fork.** The custom **Scalbox Uptime & Restart
+Monitor** panel replaces the original `Uptime` bar gauge on the right of
+`Uptime - History` / `Uptime - Storico` in **both** dashboards.
+
+#### Why a plugin is necessary
+
+Grafana's standard Time series, State timeline, Bar gauge and Table panels each
+provide some of the required features, but a single standard panel cannot
+combine this specific two-line-per-server layout with all the interactive
+controls, restart markers, resizable name column and internal scrolling.
+The custom panel implements this in one view **without installing anything on
+the Pterodactyl game servers**. It runs inside Grafana and consumes the
+existing Prometheus metric `pterodactyl_server_uptime_milliseconds`.
+
+Features:
+
+- Uptime timeline per server (green = running, red = stopped, grey = missing
+  samples), with orange restart markers derived from detected uptime resets.
+- **All / Online / Restarted** filters with counts and case-insensitive search
+  by full server name or server ID.
+- A time selector (1 hour, 6 hours, 24 hours, 7 days or 30 days) **synchronized
+  with Grafana's dashboard time range**, so the Prometheus query fetches data
+  for the selected interval. Changing it also changes the dashboard's other
+  panels, as does Grafana's own time picker.
+- Full server names on hover, ellipsis for long names and a draggable separator
+  to resize the server-name column.
+- Two lines per server: timeline/current uptime, then **Last reboot (complete
+  date and time), Restarts and Notes**. The reboot date/time is formatted using
+  the **timezone selected in the Grafana dashboard**, including DST.
+- Internal **vertical scrolling**, sized to display about six server entries at
+  a time with the standard 12-grid-unit panel height.
+- English and Italian labels automatically selected by the corresponding
+  imported dashboard. You can also change the language in the panel editor.
+
+**Accuracy note:** The exporter currently exposes an uptime gauge, not a
+separate authoritative restart-event history. The plugin **estimates** restarts
+from uptime counter decreases or transitions from zero to a positive value.
+Restarts that occur entirely between two Prometheus samples may be missed.
+The last reboot time is estimated from `sample timestamp - measured uptime`.
+An uptime of zero is shown as offline, and stale/missing samples as unknown.
+Notes are automatically derived status messages; they are not editable.
+Past history is limited by your Prometheus retention and scrape interval.
+
+#### Download and install the compiled plugin
+
+The **source code** is in
+[`grafana-plugin/src/`](grafana-plugin/src/), and the **ready-built plugin**
+is committed in [`grafana-plugin/dist/`](grafana-plugin/dist/).
+Every new version tag published through the GitHub Actions release workflow
+also builds/tests the plugin and adds the installable asset
+`scalbox-uptime-panel-X.Y.Z.zip` to the
+[GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
+page alongside the Python packages.
+
+On a standard Linux Grafana installation:
+
+1. Download `scalbox-uptime-panel-X.Y.Z.zip` from a release **created after
+   this plugin was added**. Replace `X.Y.Z` with the tag version.
+2. Extract it into Grafana's plugin folder (the ZIP already contains a directory
+   named `scalbox-uptime-panel`):
+
+   ```bash
+   sudo unzip scalbox-uptime-panel-X.Y.Z.zip -d /var/lib/grafana/plugins/
+   sudo chown -R grafana:grafana /var/lib/grafana/plugins/scalbox-uptime-panel
+   ```
+
+3. **Allow this specific unsigned plugin.** It has not been submitted for
+   official Grafana signing. Grafana normally rejects unsigned plugins.
+   In `/etc/grafana/grafana.ini`, under `[plugins]`:
+
+   ```ini
+   [plugins]
+   allow_loading_unsigned_plugins = scalbox-uptime-panel
+   ```
+
+   Or, for Grafana running via Docker/Compose, set:
+
+   ```yaml
+   environment:
+     GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: scalbox-uptime-panel
+   ```
+
+   Only enable an unsigned plugin after reviewing/trusting its source.
+   An unmodified plugin distributed with this fork uses ID
+   `scalbox-uptime-panel`; **do not disable signature verification globally**.
+
+4. Restart Grafana (for example, `sudo systemctl restart grafana-server`)
+   and import the [Italian](dashboards/Pterodactyl-Server-Network-it.json) or
+   [English](dashboards/Pterodactyl-Server-Network-en.json) dashboard.
+   Make sure your Grafana instance is connected to the Prometheus exporter.
+   The dashboard shows a missing-plugin message until this plugin is installed
+   and Grafana has restarted.
+
+For Grafana in Docker, mount the extracted
+`scalbox-uptime-panel/` folder at
+`/var/lib/grafana/plugins/scalbox-uptime-panel/` inside the container and
+apply the same environment variable. The plugin is frontend-only (no extra
+server daemon or Pterodactyl modification).
+
+#### Compile manually from source
+
+Use **Node.js 22 LTS** and npm. From a clone of this repository:
+
+```bash
+cd grafana-plugin
+npm ci              # Install exact versions from package-lock.json
+npm run check       # Run tests, TypeScript validation, and production build
+# Or, for a build without running the tests:
+npm run build
+```
+
+The compiled files are generated in `grafana-plugin/dist/`, including
+`plugin.json` and the Grafana-compatible `module.js`. To install a build
+directly from the repository, copy the **contents** of `dist/` to
+`/var/lib/grafana/plugins/scalbox-uptime-panel/`, enable the unsigned plugin
+as above and restart Grafana.
+
+The release workflow is in
+[`.github/workflows/publish-docker.yml`](.github/workflows/publish-docker.yml):
+it runs `npm ci` and `npm run check`, packages the resulting `dist` under
+its plugin-ID directory, and uploads the versioned ZIP as a GitHub Release
+asset when a stable tag (for example, `1.0.13`) is pushed. The same workflow
+continues to publish the original Python and Docker artifacts.
+
+#### Grafana support
+
+The plugin targets Grafana **10.3 or newer** with a Prometheus datasource.
+It is intended for self-hosted Grafana installations where administrators can
+explicitly permit this unsigned custom plugin; managed Grafana services may
+not allow unsigned plugins.
 
 The dashboards include:
 

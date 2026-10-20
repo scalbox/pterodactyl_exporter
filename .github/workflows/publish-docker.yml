@@ -116,9 +116,61 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  grafana-plugin:
+    name: Test, compile and package Grafana uptime panel
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout tagged plugin source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: grafana-plugin/package-lock.json
+
+      - name: Install plugin dependencies
+        working-directory: grafana-plugin
+        run: npm ci --no-audit --no-fund
+
+      - name: Test and compile Grafana plugin
+        working-directory: grafana-plugin
+        env:
+          PLUGIN_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag || '1.0.0' }}
+        run: npm run check
+
+      - name: Package compiled plugin with its plugin ID directory
+        if: github.event_name == 'push' || inputs.release_tag != ''
+        env:
+          RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test -s grafana-plugin/dist/module.js
+          test -s grafana-plugin/dist/plugin.json
+          jq -e --arg version "$RELEASE_VERSION" '.info.version == $version' grafana-plugin/dist/plugin.json
+          mkdir -p release-package/scalbox-uptime-panel
+          cp -a grafana-plugin/dist/. release-package/scalbox-uptime-panel/
+          (cd release-package && zip -q -r "../scalbox-uptime-panel-${RELEASE_VERSION}.zip" scalbox-uptime-panel)
+          unzip -t "scalbox-uptime-panel-${RELEASE_VERSION}.zip"
+
+      - name: Save installable ZIP for the release job
+        if: github.event_name == 'push' || inputs.release_tag != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: grafana-plugin-release
+          path: scalbox-uptime-panel-*.zip
+          if-no-files-found: error
+          retention-days: 14
+
   release:
     name: Publish GitHub Release
-    needs: [publish, python]
+    needs: [publish, python, grafana-plugin]
     if: github.event_name == 'push' || inputs.release_tag != ''
     runs-on: ubuntu-latest
     permissions:
@@ -150,14 +202,21 @@ jobs:
           name: python-distributions
           path: dist
 
-      - name: Create release with Python assets
+      - name: Download compiled Grafana plugin
+        uses: actions/download-artifact@v7
+        with:
+          name: grafana-plugin-release
+          path: dist
+
+      - name: Create release with Python and Grafana assets
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "::notice::Release $RELEASE_TAG already exists; leaving it unchanged."
+            gh release upload "$RELEASE_TAG" "dist/scalbox-uptime-panel-${RELEASE_TAG}.zip" --clobber
+            echo "::notice::Release $RELEASE_TAG already exists; updated only the Grafana plugin asset."
             exit 0
           fi
           gh release create "$RELEASE_TAG" dist/* \
