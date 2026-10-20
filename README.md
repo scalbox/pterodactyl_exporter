@@ -287,6 +287,57 @@ also builds/tests the plugin and adds the installable asset
 [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 page alongside the Python packages.
 
+#### Automatic installation from a GitHub Release (Linux, Grafana 11.5+)
+
+**Added by Scalbox in this fork.** On a self-hosted Linux instance of
+**Grafana 11.5 or newer**, Grafana can download and install our plugin directly
+from the ZIP published in [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
+when Grafana starts. No local Node.js build or manual extraction is needed.
+
+1. Open `/etc/grafana/grafana.ini` as administrator and **edit the existing**
+   `[plugins]` section (do not create a duplicate). Add:
+
+   ```ini
+   [plugins]
+   allow_loading_unsigned_plugins = scalbox-uptime-panel
+   preinstall = scalbox-uptime-panel@X.Y.Z@https://github.com/scalbox/pterodactyl_exporter/releases/download/X.Y.Z/scalbox-uptime-panel-X.Y.Z.zip
+   ```
+
+   Replace **all three** `X.Y.Z` occurrences with the **same** release tag
+   (for example, `1.0.13`). Choose a release that actually contains the
+   `scalbox-uptime-panel-X.Y.Z.zip` asset. The Grafana host must be able to
+   reach GitHub and follow its ZIP download redirects. If other plugins are
+   already listed in `preinstall`, preserve them and append this entry with
+   a comma.
+
+2. Apply the configuration:
+
+   ```bash
+   sudo systemctl restart grafana-server
+   sudo journalctl -u grafana-server -b --no-pager | tail -n 80
+   ```
+
+   After installation finishes, check **Administration > Plugins and data >
+   Plugins** in Grafana; then import one of the dashboards below. Grafana
+   installs `preinstall` plugins in the background, so the plugin might not
+   appear immediately after the service starts.
+
+3. **Upgrade to a new release:** change the version and **both** versioned URL
+   components to the new tag, then restart Grafana. Because this plugin is
+   downloaded from a **custom GitHub URL** rather than the official Grafana
+   catalog, **do not assume Grafana will discover or install new GitHub
+   releases automatically**. Pinning a version makes deployments predictable.
+
+   Grafana refuses to load this unsigned plugin unless the exact plugin ID is
+   allowed as shown. Only permit code from a source you trust; this exception
+   does **not** disable signature checks for every plugin.
+
+For Grafana **older than 11.5**, use the manual ZIP installation below (or
+Grafana's CLI with `--pluginUrl`). This is a server-side installation:
+**Grafana does not currently offer a ZIP upload button in its normal web UI**.
+
+#### Manual installation from a ZIP
+
 On a standard Linux Grafana installation:
 
 1. Download `scalbox-uptime-panel-X.Y.Z.zip` from a release **created after
@@ -406,6 +457,13 @@ it runs `npm ci` and `npm run check`, packages the resulting `dist` under
 its plugin-ID directory, and uploads the versioned ZIP as a GitHub Release
 asset when a stable tag (for example, `1.0.13`) is pushed. The same workflow
 continues to publish the original Python and Docker artifacts.
+
+**GitHub Releases vs Grafana catalog:** the workflow automatically publishes the
+compiled plugin ZIP to **GitHub Releases** on each stable version tag. This
+does **not** list it in Grafana's official plugin catalog or make the web UI's
+**Install** button available. Official catalog distribution requires a plugin
+submission, Grafana Labs review and signing; review is not automated by this
+workflow.
 
 #### Grafana support
 
