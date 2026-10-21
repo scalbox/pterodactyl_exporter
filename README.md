@@ -339,7 +339,10 @@ Grafana dashboard in the [`dashboards/`](dashboards/) directory:
 These five captures show complete dashboard panels with anonymized server labels
 (`Server 1`–`Server 6`), generic panel labels (`Panel A`, `Panel B`), and hidden
 server UUIDs. Configured limits, current usage, units, chart data, and all numeric
-statistics are preserved. Click an image to view it at full resolution.
+statistics are preserved. Limits remain explicit in the anonymized labels, for
+example `Server 1 - Limit 400% - Panel A` or `Server 1 - Limit 40 GiB - Panel A`.
+Only identifying text is replaced; the dashboard and panel colors are preserved.
+Click an image to view it at full resolution.
 
 **CPU and Uptime**
 
