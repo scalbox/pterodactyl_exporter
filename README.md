@@ -267,8 +267,8 @@ The API key must still have the appropriate Client API permissions.
 
 ## Metrics
 
-The exporter exposes **18 Pterodactyl-specific Prometheus metrics**, all of type
-`Gauge`. The 12 upstream metrics are listed first, followed by the six metrics
+The exporter exposes **15 Pterodactyl-specific Prometheus metrics**, all of type
+`Gauge`. The 12 upstream metrics are listed first, followed by the three metrics
 added by Scalbox in this fork. Metrics generally use the `server_name` and `id`
 labels (`id` is the short server identifier); the identity metric additionally
 includes the complete `uuid` label.
@@ -352,8 +352,8 @@ hostnames. Click an image to view it at full resolution.
 
 [![Total network traffic and backup dashboard panels](dashboards/screenshots/03-network-traffic-backups.png)](dashboards/screenshots/03-network-traffic-backups.png)
 
-Both exports contain the same panels, Prometheus queries, server selector, and
-layout. Only the user-facing labels, descriptions, legends, and backup-table
+Both exports contain the same panels, Prometheus queries, Panel and Server
+selectors, and layout. Only the user-facing labels, descriptions, legends, and backup-table
 messages differ by language.
 
 The bundled dashboards use standard Grafana panels. Beside the uptime history
@@ -387,9 +387,31 @@ the desired JSON file, select your **Prometheus** data source, and import it.
 The exporter must be reachable by Prometheus and provide the additional backup
 and identity metrics described above for those columns to contain data.
 
-The **Server** selector filters the displayed metrics in Grafana. To prevent
-servers from being queried and exported at all, configure `include_servers`
-and/or `exclude_servers` in the exporter instead.
+The **Panel** and **Server** selectors support multiple selections and **All**.
+Choose one or more panels to filter every chart, aggregate network graph, and
+Backup/Uptime table. The Server selector then offers only server names from
+the selected panels. Selecting **All** shows all available data.
+
+The Panel selector reads the Prometheus `panel` label on exporter metrics. Add
+a separate `panel` label to each exporter scrape target in your Prometheus
+configuration; the Python exporter does not add this label itself. For example:
+
+```yaml
+scrape_configs:
+  - job_name: pterodactyl_exporter
+    static_configs:
+      - targets: ['exporter-loclix:9531']
+        labels:
+          panel: loclix
+      - targets: ['exporter-scalbox:9531']
+        labels:
+          panel: scalbox
+```
+
+Replace the target addresses with your actual exporter endpoints. Unlabelled
+series are included when Panel is **All**, but are excluded when a specific
+panel is selected. To prevent servers from being queried and exported at all,
+configure `include_servers` and/or `exclude_servers` in the exporter instead.
 
 Both JSON files use the same dashboard title and are intended as alternative
 language versions. To keep both in one Grafana installation, import them into
