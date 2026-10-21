@@ -32,6 +32,9 @@
     if (!(node instanceof HTMLElement) || node.children.length > 0) return;
     const raw = node.textContent?.trim();
     if (!raw) return;
+    const previous = converted.get(node);
+    // Refreshes must not parse a shortened server name containing " - ".
+    if (previous && raw === previous.shortName) return;
     const match = raw.match(SERIES_PATTERN);
     if (!match) return;
 
@@ -41,12 +44,11 @@
     if (!panel || !server) return;
 
     const fullName = `${panel} - ${server}${direction}`;
-    const previous = converted.get(node);
-    if (previous?.fullName === fullName) return;
+    if (previous?.fullName === fullName && raw === previous.shortName) return;
 
     node.textContent = server + direction;
     node.setAttribute("title", fullName);
-    converted.set(node, { fullName });
+    converted.set(node, { fullName, shortName: server + direction });
   }
 
   function scan() {
