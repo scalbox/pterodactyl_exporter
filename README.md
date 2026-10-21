@@ -336,21 +336,30 @@ Grafana dashboard in the [`dashboards/`](dashboards/) directory:
 
 ### Dashboard screenshots
 
-The screenshots below use anonymized server labels (`Server 1`, `Server 2`, etc.),
-generic panel labels (`Panel A`, `Panel B`), and no real server UUIDs or panel
-hostnames. Click an image to view it at full resolution.
+These five captures show complete dashboard panels with anonymized server labels
+(`Server 1`–`Server 6`), generic panel labels (`Panel A`, `Panel B`), and hidden
+server UUIDs. Configured limits, current usage, units, chart data, and all numeric
+statistics are preserved. Click an image to view it at full resolution.
 
-**CPU, Uptime, and Memory**
+**CPU and Uptime**
 
-[![CPU, Uptime, and Memory dashboard panels](dashboards/screenshots/01-cpu-uptime-memory-disk.png)](dashboards/screenshots/01-cpu-uptime-memory-disk.png)
+[![CPU usage, uptime history, and uptime summary](dashboards/screenshots/01-cpu-uptime.png)](dashboards/screenshots/01-cpu-uptime.png)
 
-**Network RX/TX — Current and Cumulative**
+**Memory and Disk**
 
-[![Current and cumulative network RX and TX dashboard panels](dashboards/screenshots/02-network-rx-tx.png)](dashboards/screenshots/02-network-rx-tx.png)
+[![Memory and disk usage with configured limits](dashboards/screenshots/02-memory-disk.png)](dashboards/screenshots/02-memory-disk.png)
+
+**Network RX/TX — Current**
+
+[![Current per-server network RX and TX throughput](dashboards/screenshots/03-network-current.png)](dashboards/screenshots/03-network-current.png)
+
+**Network RX/TX — Cumulative**
+
+[![Cumulative per-server network RX and TX traffic](dashboards/screenshots/04-network-cumulative.png)](dashboards/screenshots/04-network-cumulative.png)
 
 **Total Network Traffic and Backups**
 
-[![Total network traffic and backup dashboard panels](dashboards/screenshots/03-network-traffic-backups.png)](dashboards/screenshots/03-network-traffic-backups.png)
+[![Total current and cumulative network traffic and backup usage](dashboards/screenshots/05-total-network-backups.png)](dashboards/screenshots/05-total-network-backups.png)
 
 Both exports contain the same panels, Prometheus queries, Panel and Server
 selectors, and layout. Only the user-facing labels, descriptions, legends, and backup-table
