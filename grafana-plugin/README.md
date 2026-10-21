@@ -158,7 +158,7 @@ The **source code** is in
 is committed in [`dist/`](dist/).
 Every new version tag published through the GitHub Actions release workflow
 also builds/tests the plugin and adds the installable asset
-`scalbox-pterodactyl-uptime-1.0.13.zip` to the
+`scalbox-pterodactyl-uptime-1.0.14.zip` to the
 [GitHub Releases](https://github.com/scalbox/pterodactyl_exporter/releases)
 page alongside the Python packages.
 
@@ -188,7 +188,7 @@ when Grafana starts. No local Node.js build or manual extraction is needed.
    ```ini
    [plugins]
    allow_loading_unsigned_plugins = scalbox-pterodactyl-uptime
-   preinstall = scalbox-pterodactyl-uptime@1.0.13@https://github.com/scalbox/pterodactyl_exporter/releases/download/1.0.13/scalbox-pterodactyl-uptime-1.0.13.zip
+   preinstall = scalbox-pterodactyl-uptime@1.0.14@https://github.com/scalbox/pterodactyl_exporter/releases/download/1.0.14/scalbox-pterodactyl-uptime-1.0.14.zip
    ```
 
    The release workflow sets the **same version** in the plugin ID, download
@@ -239,7 +239,7 @@ already contains the required `scalbox-pterodactyl-uptime/` directory. You need
 1. **Use the published plugin version maintained by the release workflow:**
 
    ```bash
-   PLUGIN_VERSION="1.0.13"
+   PLUGIN_VERSION="1.0.14"
    ```
 
 2. **Download the compiled plugin** from GitHub Releases:

@@ -1,7 +1,7 @@
 services:
   pterodactyl-exporter:
     # Versioned image published automatically by GitHub Actions.
-    image: ghcr.io/scalbox/pterodactyl_exporter:1.0.13
+    image: ghcr.io/scalbox/pterodactyl_exporter:1.0.14
     container_name: pterodactyl-exporter
     restart: unless-stopped
     # In config.yml, keep listen_address: 0.0.0.0 for Docker networking.
