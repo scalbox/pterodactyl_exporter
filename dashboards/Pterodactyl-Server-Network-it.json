@@ -148,7 +148,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 7,
         "w": 12,
         "x": 0,
         "y": 1
@@ -156,7 +156,7 @@
       "id": 42,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -182,7 +182,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -603,6 +603,178 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 5
+      },
+      "id": 1042,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 42,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
       "id": 51,
       "type": "text",
       "title": "",
@@ -680,7 +852,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 13
@@ -688,7 +860,7 @@
       "id": 2,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -714,7 +886,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"illimitato\", \"cpu_limit\", \"^0%$\") > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"}, \"cpu_limit\", \"non disponibile\", \"server_name\", \".*\")",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -787,7 +959,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 13
@@ -795,7 +967,7 @@
       "id": 44,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -821,7 +993,7 @@
           },
           "editorMode": "code",
           "expr": "100 * pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} / on (server_name, id) clamp_min(pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"}, 1) and on (server_name, id) (pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} > 0)",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -829,6 +1001,350 @@
       "title": "CPU usage percent",
       "type": "timeseries",
       "description": "Percentuale del limite CPU utilizzata (utilizzo assoluto / limite × 100): ad esempio, 200% su un limite di 400% = 50%. Nessun risultato per server con CPU illimitata (limite 0)."
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1002,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 2,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 22,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1044,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 44,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -906,7 +1422,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 29
@@ -914,7 +1430,7 @@
       "id": 6,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -940,7 +1456,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (memory_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 0 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1024), 0.1)), \"memory_limit\", \"$1 MiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1024 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1048576) / 1024, 0.1)), \"memory_limit\", \"$1 GiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1048576 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1073741824) / 1048576, 0.1)), \"memory_limit\", \"$1 TiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"memory_limit\", \"$1 PiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", (pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() == 0)), \"memory_limit\", \"illimitato\", \"memory_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}, \"memory_limit\", \"non disponibile\", \"server_name\", \".*\")",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1011,7 +1527,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 29
@@ -1019,7 +1535,7 @@
       "id": 4,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1045,13 +1561,357 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_memory_mebibyte {server_name=~\"$server\",panel=~\"$panel\"} / pterodactyl_server_max_memory_mebibyte {server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Memory usage percent",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 38,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1006,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 6,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 38,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1004,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 4,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -1129,7 +1989,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 45
@@ -1137,7 +1997,7 @@
       "id": 10,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1163,7 +2023,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (disk_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 0 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1024), 0.1)), \"disk_limit\", \"$1 MiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1024 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1048576) / 1024, 0.1)), \"disk_limit\", \"$1 GiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1048576 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1073741824) / 1048576, 0.1)), \"disk_limit\", \"$1 TiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"disk_limit\", \"$1 PiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", (pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() == 0)), \"disk_limit\", \"illimitato\", \"disk_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}, \"disk_limit\", \"non disponibile\", \"server_name\", \".*\")",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1234,7 +2094,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 45
@@ -1242,7 +2102,7 @@
       "id": 8,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1268,13 +2128,357 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_disk_mebibyte {server_name=~\"$server\",panel=~\"$panel\"} / pterodactyl_server_max_disk_mebibyte {server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Disk usage percent",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1010,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 10,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 54,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1008,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 8,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -1356,12 +2560,12 @@
         "x": 0,
         "y": 61,
         "w": 12,
-        "h": 15
+        "h": 9
       },
       "id": 30,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1387,7 +2591,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1463,12 +2667,12 @@
         "x": 12,
         "y": 61,
         "w": 12,
-        "h": 15
+        "h": 9
       },
       "id": 32,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1494,7 +2698,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1502,6 +2706,350 @@
       "title": "Network Traffic TX - Attuale (bit/s)",
       "type": "timeseries",
       "description": "Velocità media di trasmissione per server negli ultimi 5 minuti; bit/s (SI) con scala automatica kbps/Mbps/Gbps."
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 70,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1030,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 30,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 70,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1032,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 32,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -1578,7 +3126,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "right",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -1592,8 +3140,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{panel}} - {{server_name}} · RX",
+          "expr": "label_replace((clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608), \"traffic\", \"RX\", \"server_name\", \".*\")",
+          "legendFormat": "{{server_name}} · RX",
           "range": true,
           "refId": "A"
         },
@@ -1603,8 +3151,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{panel}} - {{server_name}} · TX",
+          "expr": "label_replace((clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608), \"traffic\", \"TX\", \"server_name\", \".*\")",
+          "legendFormat": "{{server_name}} · TX",
           "range": true,
           "refId": "B"
         }
@@ -1612,6 +3160,193 @@
       "title": "Network Traffic RX / TX - Attuale (bit/s)",
       "type": "timeseries",
       "description": "Velocità RX e TX come due serie distinte per server, mediate sugli ultimi 5 minuti; bit/s (SI) con scala automatica kbps/Mbps/Gbps."
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 430
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Traffico"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 84,
+        "w": 24,
+        "h": 6
+      },
+      "id": 1038,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 38,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "traffic": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "traffic": 2,
+              "Mean": 3,
+              "Last *": 4,
+              "Max": 5,
+              "Min": 6
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel",
+              "traffic": "Traffico"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -1678,14 +3413,14 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 90,
         "w": 12,
-        "h": 15
+        "h": 9
       },
       "id": 12,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1711,7 +3446,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1785,14 +3520,14 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 84,
+        "y": 90,
         "w": 12,
-        "h": 15
+        "h": 9
       },
       "id": 24,
       "options": {
         "legend": {
-          "showLegend": true,
+          "showLegend": false,
           "displayMode": "table",
           "placement": "bottom",
           "calcs": [
@@ -1818,7 +3553,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{panel}} - {{server_name}}",
+          "legendFormat": "{{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1826,6 +3561,350 @@
       "title": "Network TX - Cumulativo",
       "type": "timeseries",
       "description": "Traffico trasmesso cumulativo di ciascun server, in byte con scala binaria con scala automatica MiB/GiB/TiB/PiB."
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 99,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1012,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 12,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 99,
+        "w": 12,
+        "h": 6
+      },
+      "id": 1024,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 24,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "Mean": 2,
+              "Last *": 3,
+              "Max": 4,
+              "Min": 5
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -1892,7 +3971,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 99,
+        "y": 105,
         "w": 24,
         "h": 8
       },
@@ -1902,7 +3981,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "right",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -1916,8 +3995,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{panel}} - {{server_name}} · RX",
+          "expr": "label_replace((pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576), \"traffic\", \"RX\", \"server_name\", \".*\")",
+          "legendFormat": "{{server_name}} · RX",
           "range": true,
           "refId": "A"
         },
@@ -1927,8 +4006,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{panel}} - {{server_name}} · TX",
+          "expr": "label_replace((pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576), \"traffic\", \"TX\", \"server_name\", \".*\")",
+          "legendFormat": "{{server_name}} · TX",
           "range": true,
           "refId": "B"
         }
@@ -1936,6 +4015,193 @@
       "title": "Network RX / TX - Cumulativo",
       "type": "timeseries",
       "description": "Traffico cumulativo RX e TX: due serie distinte per server, in byte con scala binaria con scala automatica MiB/GiB/TiB/PiB."
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "description": "Computed from the time series above. Same Prometheus data, no extra Prometheus query.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 1,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Server"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 430
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Panel"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last *"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Traffico"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 113,
+        "w": 24,
+        "h": 6
+      },
+      "id": 1036,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Last *",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 36,
+          "refId": "A",
+          "withTransforms": false
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "labelsToFields": true,
+            "reducers": [
+              "mean",
+              "lastNotNull",
+              "max",
+              "min"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {
+              "server_name": true,
+              "panel": true,
+              "traffic": true,
+              "Mean": true,
+              "Last *": true,
+              "Max": true,
+              "Min": true
+            },
+            "indexByName": {
+              "server_name": 0,
+              "panel": 1,
+              "traffic": 2,
+              "Mean": 3,
+              "Last *": 4,
+              "Max": 5,
+              "Min": 6
+            },
+            "renameByName": {
+              "server_name": "Server",
+              "panel": "Panel",
+              "traffic": "Traffico"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -2052,7 +4318,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 107,
+        "y": 119,
         "w": 24,
         "h": 8
       },
@@ -2223,7 +4489,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 115,
+        "y": 127,
         "w": 24,
         "h": 8
       },
@@ -2285,7 +4551,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 123
+        "y": 135
       },
       "id": 26,
       "panels": [],
@@ -2530,7 +4796,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 124
+        "y": 136
       },
       "id": 28,
       "options": {

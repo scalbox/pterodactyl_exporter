@@ -417,23 +417,33 @@ Both JSON files use the same dashboard title and are intended as alternative
 language versions. To keep both in one Grafana installation, import them into
 different folders or choose distinct dashboard names during import.
 
-### Optional: panel names on legend hover
+### Per-server legend statistics with a Panel column
 
-Grafana's native Time series legend has **one shared display name** for the
-legend and its hover tooltip. To display only the server name in the legend
-while seeing `panel - server` on hover, the bundled dashboards now provide
-`{{panel}} - {{server_name}}` as the underlying series name. Install the
-optional browser userscript [Grafana legend panel tooltip](grafana/legend-panel-tooltip.user.js)
-using a userscript manager (for example Tampermonkey) on the browser where you
-view Grafana. The script hides the panel prefix **only in the legend**, keeping
-it in the hover title. The original panel identity remains available in the
-series name, and combined RX/TX legends retain their direction.
+The supplied dashboards use a separate, compact **native Grafana Table**
+below each per-server Time series chart so the statistics have distinct
+**Server**, **Panel**, **Mean**, **Last ***, **Max**, and **Min** columns.
+Combined RX/TX charts also have a **Traffic** column to distinguish the
+two series; the labels and values follow the selected dashboard language.
+The chart itself shows only the server name in its hover tooltip (plus
+RX/TX direction where applicable).
 
-The userscript runs locally in the browser, not on the Grafana server.
-Without it, Grafana will display the full `panel - server` name in the
-legend as well. It requires a Prometheus `panel` label; Backup and Uptime
-Summary tables and total-network series are not modified. Changes to Grafana's
-HTML structure may require adapting the userscript's legend selectors.
+This is a companion table, **not** an extra column in Grafana's built-in
+Time series legend: native legend tables only support standard calculations,
+not arbitrary Prometheus label columns. The built-in legends are hidden to
+avoid duplicate rows; clicking a companion table row does not isolate a
+line as clicking a native Grafana legend item would.
+
+The tables use Grafana's built-in **Dashboard** data source to reuse the
+results of the chart directly above them. They do not make extra Prometheus
+requests. Both dashboards require Grafana to preserve the special
+`-- Dashboard --` data source when importing; use the provided classic JSON
+files and select the Prometheus source when importing. Do not remove the
+`panel` Prometheus label: the **Panel** column and the Panel filter need it.
+No external JavaScript, browser extension, or optional visualization plugin
+is required for the companion tables.
+
+**Note:** The screenshots in this README show the earlier legend layout;
+the current dashboard JSON files contain the separate statistics tables.
 
 ### Grafana uptime and restart panel plugin
 
