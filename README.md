@@ -417,6 +417,24 @@ Both JSON files use the same dashboard title and are intended as alternative
 language versions. To keep both in one Grafana installation, import them into
 different folders or choose distinct dashboard names during import.
 
+### Optional: panel names on legend hover
+
+Grafana's native Time series legend has **one shared display name** for the
+legend and its hover tooltip. To display only the server name in the legend
+while seeing `panel - server` on hover, the bundled dashboards now provide
+`{{panel}} - {{server_name}}` as the underlying series name. Install the
+optional browser userscript [Grafana legend panel tooltip](grafana/legend-panel-tooltip.user.js)
+using a userscript manager (for example Tampermonkey) on the browser where you
+view Grafana. The script hides the panel prefix **only in the legend**, keeping
+it in the hover title. The original panel identity remains available in the
+series name, and combined RX/TX legends retain their direction.
+
+The userscript runs locally in the browser, not on the Grafana server.
+Without it, Grafana will display the full `panel - server` name in the
+legend as well. It requires a Prometheus `panel` label; Backup and Uptime
+Summary tables and total-network series are not modified. Changes to Grafana's
+HTML structure may require adapting the userscript's legend selectors.
+
 ### Grafana uptime and restart panel plugin
 
 **Scalbox - Pterodactyl Uptime & Restart Monitor (Grafana panel)** is an

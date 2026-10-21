@@ -182,7 +182,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_uptime_milliseconds{server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -714,7 +714,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (cpu_limit) (label_replace(label_replace(count_values by (server_name, id, job, instance) (\"cpu_limit\", pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} @ end()), \"cpu_limit\", \"$1%\", \"cpu_limit\", \"^(.+)$\"), \"cpu_limit\", \"unlimited\", \"cpu_limit\", \"^0%$\") > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"}, \"cpu_limit\", \"unavailable\", \"server_name\", \".*\")",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -821,7 +821,7 @@
           },
           "editorMode": "code",
           "expr": "100 * pterodactyl_server_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} / on (server_name, id) clamp_min(pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"}, 1) and on (server_name, id) (pterodactyl_server_max_cpu_absolute{server_name=~\"$server\",panel=~\"$panel\"} > 0)",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -940,7 +940,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (memory_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 0 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1024), 0.1)), \"memory_limit\", \"$1 MiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1024 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1048576) / 1024, 0.1)), \"memory_limit\", \"$1 GiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1048576 and pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1073741824) / 1048576, 0.1)), \"memory_limit\", \"$1 TiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", round((pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"memory_limit\", \"$1 PiB\", \"memory_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"memory_limit\", (pterodactyl_server_max_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() == 0)), \"memory_limit\", \"unlimited\", \"memory_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_memory_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}, \"memory_limit\", \"unavailable\", \"server_name\", \".*\")",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1045,7 +1045,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_memory_mebibyte {server_name=~\"$server\",panel=~\"$panel\"} / pterodactyl_server_max_memory_mebibyte {server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1163,7 +1163,7 @@
           },
           "editorMode": "code",
           "expr": "(pterodactyl_server_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * on (server_name, id, job, instance) group_left (disk_limit) ((label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 0 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1024), 0.1)), \"disk_limit\", \"$1 MiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1024 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1048576) / 1024, 0.1)), \"disk_limit\", \"$1 GiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1048576 and pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() < 1073741824) / 1048576, 0.1)), \"disk_limit\", \"$1 TiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", round((pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() >= 1073741824) / 1073741824, 0.1)), \"disk_limit\", \"$1 PiB\", \"disk_limit\", \"^(.+)$\")\n    or\n    label_replace(count_values by (server_name, id, job, instance) (\"disk_limit\", (pterodactyl_server_max_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} @ end() == 0)), \"disk_limit\", \"unlimited\", \"disk_limit\", \"^0$\")) > bool 0)) or on (server_name, id, job, instance) label_replace(pterodactyl_server_disk_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}, \"disk_limit\", \"unavailable\", \"server_name\", \".*\")",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1268,7 +1268,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_disk_mebibyte {server_name=~\"$server\",panel=~\"$panel\"} / pterodactyl_server_max_disk_mebibyte {server_name=~\"$server\",panel=~\"$panel\"}",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1387,7 +1387,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1494,7 +1494,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1593,7 +1593,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{server_name}} · RX",
+          "legendFormat": "{{panel}} - {{server_name}} · RX",
           "range": true,
           "refId": "A"
         },
@@ -1604,7 +1604,7 @@
           },
           "editorMode": "code",
           "expr": "clamp_min(rate(pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"}[5m]), 0) * 8.388608",
-          "legendFormat": "{{server_name}} · TX",
+          "legendFormat": "{{panel}} - {{server_name}} · TX",
           "range": true,
           "refId": "B"
         }
@@ -1711,7 +1711,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1818,7 +1818,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{server_name}}",
+          "legendFormat": "{{panel}} - {{server_name}}",
           "range": true,
           "refId": "A"
         }
@@ -1917,7 +1917,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_rx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{server_name}} · RX",
+          "legendFormat": "{{panel}} - {{server_name}} · RX",
           "range": true,
           "refId": "A"
         },
@@ -1928,7 +1928,7 @@
           },
           "editorMode": "code",
           "expr": "pterodactyl_server_network_tx_mebibyte{server_name=~\"$server\",panel=~\"$panel\"} * 1048576",
-          "legendFormat": "{{server_name}} · TX",
+          "legendFormat": "{{panel}} - {{server_name}} · TX",
           "range": true,
           "refId": "B"
         }
