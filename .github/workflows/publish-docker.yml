@@ -100,6 +100,35 @@ jobs:
       - name: Validate distribution metadata
         run: python -m twine check dist/*
 
+      - name: Verify screenshots are excluded from Python distributions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          import zipfile
+
+          source_archives = list(Path("dist").glob("*.tar.gz"))
+          wheels = list(Path("dist").glob("*.whl"))
+          if len(source_archives) != 1 or len(wheels) != 1:
+              raise SystemExit("Expected exactly one source archive and one wheel")
+
+          with tarfile.open(source_archives[0], "r:gz") as archive:
+              sdist_files = archive.getnames()
+          with zipfile.ZipFile(wheels[0]) as wheel:
+              wheel_files = wheel.namelist()
+
+          screenshots = [
+              name for name in sdist_files + wheel_files
+              if "/dashboards/screenshots/" in f"/{name.replace(chr(92), '/')}"
+          ]
+          if screenshots:
+              raise SystemExit(
+                  "Grafana screenshots must not be packaged:\\n"
+                  + "\\n".join(screenshots)
+              )
+          print("Verified: neither Python distribution contains Grafana screenshots")
+          PY
+
       - name: Verify release package names
         if: github.event_name == 'push' || inputs.release_tag != ''
         env:

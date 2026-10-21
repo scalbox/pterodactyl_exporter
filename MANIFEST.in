@@ -1,0 +1,3 @@
+# Keep Grafana screenshots in the Git repository for README rendering,
+# but exclude them from the Python source distribution (sdist).
+prune dashboards/screenshots

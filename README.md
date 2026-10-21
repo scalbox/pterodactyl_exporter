@@ -501,6 +501,18 @@ The workflow adds two different Python installation packages:
 `pterodactyl_exporter-X.Y.Z.tar.gz` (source distribution). The Docker image is
 published separately under GitHub Packages (GHCR), not as a release asset.
 
+Grafana dashboard screenshots are tracked in `dashboards/screenshots/` so they
+render in this README, but they are **excluded** from the Python source
+archive (`pterodactyl_exporter-X.Y.Z.tar.gz`) by `MANIFEST.in`. The release
+build checks that neither the source archive nor the wheel contains screenshots.
+This keeps downloadable Python packages lightweight.
+
+GitHub's automatically generated **Source code** archives are different: they
+contain a snapshot of the Git tag, including tracked screenshots, and cannot
+be filtered with `MANIFEST.in`. The existing `1.0.13` release asset is not
+changed retroactively; the exclusion applies to packages built after this
+change.
+
 Before creating a tag, use **Actions > Publish Docker and Python release > Run
 workflow** on `main` to validate Docker and Python builds. Manual runs do **not**
 publish Docker images or create GitHub Releases.
