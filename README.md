@@ -417,33 +417,21 @@ Both JSON files use the same dashboard title and are intended as alternative
 language versions. To keep both in one Grafana installation, import them into
 different folders or choose distinct dashboard names during import.
 
-### Per-server legend statistics with a Panel column
+### Per-server Grafana legends
 
-The supplied dashboards use a separate, compact **native Grafana Table**
-below each per-server Time series chart so the statistics have distinct
-**Server**, **Panel**, **Mean**, **Last ***, **Max**, and **Min** columns.
-Combined RX/TX charts also have a **Traffic** column to distinguish the
-two series; the labels and values follow the selected dashboard language.
-The chart itself shows only the server name in its hover tooltip (plus
-RX/TX direction where applicable).
+Per-server Time series charts use Grafana's native interactive legends with
+their Mean, Last, Max, and Min calculations. Server names are prioritized:
+`{{server_name}} - {{panel}}` (for example, `USA RustChimera 2X - loclix`).
+Combined network RX/TX series use `{{server_name}} · RX - {{panel}}`
+and `{{server_name}} · TX - {{panel}}`.
 
-This is a companion table, **not** an extra column in Grafana's built-in
-Time series legend: native legend tables only support standard calculations,
-not arbitrary Prometheus label columns. The built-in legends are hidden to
-avoid duplicate rows; clicking a companion table row does not isolate a
-line as clicking a native Grafana legend item would.
-
-The tables use Grafana's built-in **Dashboard** data source to reuse the
-results of the chart directly above them. They do not make extra Prometheus
-requests. Both dashboards require Grafana to preserve the special
-`-- Dashboard --` data source when importing; use the provided classic JSON
-files and select the Prometheus source when importing. Do not remove the
-`panel` Prometheus label: the **Panel** column and the Panel filter need it.
-No external JavaScript, browser extension, or optional visualization plugin
-is required for the companion tables.
-
-**Note:** The screenshots in this README show the earlier legend layout;
-the current dashboard JSON files contain the separate statistics tables.
+Grafana's Time series legend offers calculation columns such as Mean, Last,
+Max, and Min, but does not support arbitrary columns derived from Prometheus
+labels. The Panel suffix therefore forms part of the series display name and
+is also shown in the native hover tooltip. The built-in legend interactions
+are preserved. The Panel and Server filters, Backup, Uptime Summary, and
+aggregate network charts are unchanged. No browser scripts or extra tables
+are required.
 
 ### Grafana uptime and restart panel plugin
 
